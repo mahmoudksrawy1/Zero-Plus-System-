@@ -6,7 +6,7 @@
     <title>Zero Plus | الإصدار 1</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts -->
+    <!-- Google Fonts: Cairo & Rajdhani -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
 
     <style>
@@ -32,7 +32,7 @@
         .font-tech { font-family: 'Rajdhani', 'Cairo', sans-serif; }
 
         .hud-grid-bg {
-            background-image: 
+            background-image:
                 linear-gradient(to right, rgba(0, 240, 255, 0.035) 1px, transparent 1px),
                 linear-gradient(to bottom, rgba(0, 240, 255, 0.035) 1px, transparent 1px);
             background-size: 38px 38px;
@@ -55,10 +55,24 @@
         }
 
         .hud-corners::before, .hud-corners::after {
-            content: ''; position: absolute; width: 14px; height: 14px; pointer-events: none;
+            content: '';
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            pointer-events: none;
         }
-        .hud-corners::before { top: -1px; right: -1px; border-top: 3px solid currentColor; border-right: 3px solid currentColor; }
-        .hud-corners::after { bottom: -1px; left: -1px; border-bottom: 3px solid currentColor; border-left: 3px solid currentColor; }
+        .hud-corners::before {
+            top: -1px;
+            right: -1px;
+            border-top: 3px solid currentColor;
+            border-right: 3px solid currentColor;
+        }
+        .hud-corners::after {
+            bottom: -1px;
+            left: -1px;
+            border-bottom: 3px solid currentColor;
+            border-left: 3px solid currentColor;
+        }
 
         .glow-cyan { text-shadow: 0 0 10px rgba(0, 240, 255, 0.75), 0 0 20px rgba(0, 240, 255, 0.3); }
         .glow-purple { text-shadow: 0 0 10px rgba(168, 85, 247, 0.75), 0 0 20px rgba(168, 85, 247, 0.3); }
@@ -141,7 +155,10 @@
             line-height: 1.55;
         }
 
-        @keyframes modalAppear { 0% { opacity: 0; transform: scale(0.92) translateY(8px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+        @keyframes modalAppear {
+            0% { opacity: 0; transform: scale(0.92) translateY(8px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
         .animate-hud-modal { animation: modalAppear 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
         @keyframes levelUpPulse {
@@ -156,8 +173,14 @@
         }
         .spin-rays-slow { animation: spinRays 14s linear infinite; }
 
-        @keyframes floatUpFade { 0% { opacity: 1; transform: translateY(0) scale(0.95); } 100% { opacity: 0; transform: translateY(-42px) scale(1.1); } }
+        @keyframes floatUpFade {
+            0% { opacity: 1; transform: translateY(0) scale(0.95); }
+            100% { opacity: 0; transform: translateY(-42px) scale(1.1); }
+        }
         .floating-xp { position: fixed; pointer-events: none; z-index: 9999; animation: floatUpFade 0.95s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        details summary::-webkit-details-marker { display: none; }
+        details summary { list-style: none; }
 
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #070913; }
@@ -167,6 +190,7 @@
 </head>
 <body class="min-h-screen hud-grid-bg relative flex flex-col justify-between">
 
+    <!-- خلفية الجزيئات السماوية الخفيفة -->
     <canvas id="bgParticlesCanvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
 
     <!-- شريط النظام العلوي -->
@@ -191,14 +215,16 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
+                <!-- مسار الالتزام (يحسب فقط الأيام المكتمل فيها 100 نقطة) -->
                 <div class="bg-slate-950/90 border border-cyan-400/50 rounded-xl px-3 py-1.5 flex items-center gap-2.5">
                     <svg class="w-5 h-5 text-cyan-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path></svg>
                     <div class="leading-tight">
                         <span class="block text-[10px] font-bold text-slate-400">مسار الالتزام</span>
-                        <span id="challengeDayCounter" class="text-xs sm:text-sm font-black text-white glow-cyan">اليوم 1</span>
+                        <span id="challengeDayCounter" class="text-xs sm:text-sm font-black text-white glow-cyan">0 يوم</span>
                     </div>
                 </div>
 
+                <!-- العداد التنازلي لبداية اليوم الجديد الساعة 12:00 ص -->
                 <div class="bg-slate-950/90 border border-purple-500/50 rounded-xl px-3 py-1.5 flex items-center gap-2.5">
                     <svg class="w-5 h-5 text-purple-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                     <div class="leading-tight">
@@ -207,20 +233,23 @@
                     </div>
                 </div>
 
-                <button onclick="toggleSound()" id="soundToggleBtn" class="p-2 rounded-xl bg-slate-900/90 border border-slate-700 hover:border-cyan-400 text-slate-200 transition" title="تبديل الصوت">
+                <!-- زر الصوت -->
+                <button onclick="toggleSound()" id="soundToggleBtn" class="p-2 rounded-xl bg-slate-900/90 border border-slate-700 hover:border-cyan-400 text-slate-200 transition" title="تبديل الصوت" aria-label="تبديل الصوت">
                     <svg id="soundSvgIcon" class="w-5 h-5 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
                 </button>
+                <!-- زر قواعد النظام -->
+                <button onclick="openRulesModal()" class="px-3 py-2 rounded-xl bg-slate-900/90 border border-cyan-500/50 hover:border-cyan-300 text-cyan-200 transition text-xs sm:text-sm font-black" title="قواعد النظام" aria-label="قواعد النظام">قواعد النظام</button>
             </div>
         </div>
     </header>
 
     <main class="relative z-10 w-full max-w-6xl mx-auto px-3 sm:px-5 py-5 flex-1 flex flex-col gap-5">
-        
+
         <!-- بطاقة اللاعب والمستوى -->
         <section class="hud-panel-cyan hud-corners text-cyan-400 rounded-2xl p-4 sm:p-6">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
                 <div class="lg:col-span-5 flex items-center gap-4 border-b lg:border-b-0 lg:border-l border-slate-800/90 pb-4 lg:pb-0 lg:pl-5">
-                    <button onclick="openProfileModal()" class="relative group shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-slate-950 border-2 border-cyan-400 shadow-[0_0_22px_rgba(0,240,255,0.3)] flex items-center justify-center p-2 hover:scale-105 transition overflow-hidden">
+                    <button onclick="openProfileModal()" class="relative group shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-slate-950 border-2 border-cyan-400 shadow-[0_0_22px_rgba(0,240,255,0.3)] flex items-center justify-center p-2 hover:scale-105 transition overflow-hidden" aria-label="تخصيص الهوية الشخصية">
                         <div id="playerAvatarContainer" class="w-full h-full flex items-center justify-center"></div>
                         <div class="absolute bottom-0 inset-x-0 bg-cyan-500/90 text-slate-950 text-[10px] font-black py-0.5 text-center">تخصيص</div>
                     </button>
@@ -237,7 +266,7 @@
                                 <span class="text-[10px] font-bold text-slate-300">اللقب:</span>
                                 <span id="playerRankTitleBadge" class="text-[11px] font-black text-amber-300 glow-amber">رتبة E - مبتدئ النظام</span>
                             </div>
-                            <span id="nextRankHintText" class="text-[10px] font-bold text-cyan-300/80 bg-slate-950/80 border border-slate-800 px-2 py-0.5 rounded-md">الترقية: LVL 5</span>
+                            <span id="nextRankHintText" class="text-[10px] font-bold text-cyan-300/80 bg-slate-950/80 border border-slate-800 px-2 py-0.5 rounded-md">الترقية القادمة: LVL 5</span>
                         </div>
 
                         <div class="flex flex-wrap items-center gap-2">
@@ -261,6 +290,7 @@
                                 <span class="text-xs font-black text-purple-300 font-tech">LVL</span>
                                 <span id="playerLevelDisplay" class="text-3xl sm:text-4xl font-black text-white glow-purple font-tech">0</span>
                             </div>
+                            <button onclick="openProgressModal()" class="text-[10px] sm:text-xs px-2.5 py-2 rounded-lg bg-slate-950 border border-purple-500/50 text-purple-200 hover:border-cyan-400 transition font-black" title="سجل التقدم والنقاط">السجل</button>
                         </div>
                         <div class="flex items-center gap-2.5">
                             <div class="bg-slate-950/90 border border-slate-800 rounded-xl px-3 py-1.5 text-center">
@@ -288,7 +318,7 @@
                         <div id="dailyPenaltyAvoidanceBox" class="w-full bg-slate-950 h-7 rounded-xl p-1 border border-rose-500/50 relative overflow-hidden transition-colors">
                             <div id="dailyPenaltyProgressBar" class="penalty-bar-warn h-full rounded-lg" style="width: 0%;"></div>
                             <div class="absolute inset-0 flex items-center justify-center gap-1.5 text-[11px] sm:text-xs font-black text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)] px-2">
-                                <span id="dailyPenaltyProgressText">لتخطي العقاب: متبقي 100 ط (0/100)</span>
+                                <span id="dailyPenaltyProgressText">لتخطي العقاب: متبقي 100 نقطة (0/100)</span>
                             </div>
                         </div>
                     </div>
@@ -296,7 +326,7 @@
             </div>
         </section>
 
-        <!-- التبويبات -->
+        <!-- التبويبات الرئيسية -->
         <nav class="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3">
             <button onclick="switchTab('quests')" id="tabBtn_quests" class="py-3 px-3 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition btn-hud-cyan text-white border-cyan-400">
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
@@ -318,8 +348,9 @@
             </button>
         </nav>
 
-        <!-- التبويب 1: المهام -->
+        <!-- التبويب 1: المهام اليومية -->
         <section id="tabContent_quests" class="flex flex-col gap-5">
+            <!-- بانر العقاب النشط -->
             <div id="activePunishmentQuestBanner" class="hidden hud-panel-purple rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-purple-950/90 border border-purple-400 flex items-center justify-center text-purple-300 shrink-0">
@@ -336,7 +367,7 @@
                 </div>
             </div>
 
-            <!-- هيدر المهام مع زر الإضافة الجديد -->
+            <!-- هيدر المهام مع زر الإضافة -->
             <div class="hud-panel-cyan rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-cyan-950/80 border border-cyan-500/40 flex items-center justify-center text-cyan-300 shrink-0">
@@ -344,7 +375,7 @@
                     </div>
                     <div>
                         <h3 class="text-sm sm:text-base font-black text-white">سجل المهام وإدارتها</h3>
-                        <p class="text-xs text-slate-400">تتجدد المهام، ويجب جمع 100 نقطة لتجنب العقاب</p>
+                        <p class="text-xs text-slate-400">تتجدد المهام تلقائياً الساعة 12:00 ص، ويجب جمع 100 نقطة لتجنب العقاب</p>
                     </div>
                 </div>
                 <button onclick="openQuestModal()" class="px-4 py-2.5 rounded-xl btn-hud-cyan text-white text-xs font-black flex items-center gap-2 shrink-0">
@@ -353,6 +384,7 @@
                 </button>
             </div>
 
+            <!-- عمودا المهام -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
                 <div class="hud-panel-cyan hud-corners text-cyan-400 rounded-2xl p-4 sm:p-5 flex flex-col">
                     <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4 gap-2">
@@ -363,7 +395,7 @@
                 </div>
                 <div class="hud-panel-purple hud-corners text-purple-400 rounded-2xl p-4 sm:p-5 flex flex-col">
                     <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4 gap-2">
-                        <h3 class="text-base font-black text-white glow-purple">مهام المرة الواحدة (لاتتجدد)</h3>
+                        <h3 class="text-base font-black text-white glow-purple">مهام المرة الواحدة (مرة يومياً وتتجدد غداً)</h3>
                         <span id="onetimeTasksCountBadge" class="bg-purple-950/90 border border-purple-500/40 text-purple-300 text-xs font-black px-2.5 py-1 rounded-lg"></span>
                     </div>
                     <div id="onetimeTasksContainer" class="space-y-3"></div>
@@ -371,7 +403,7 @@
             </div>
         </section>
 
-        <!-- التبويب 2: عجلة الحظ (بدون تعديل) -->
+        <!-- التبويب 2: عجلة الحظ -->
         <section id="tabContent_fortune" class="hidden flex-col gap-6">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 <div class="lg:col-span-7 hud-panel-cyan hud-corners text-cyan-400 rounded-2xl p-5 flex flex-col items-center">
@@ -394,6 +426,7 @@
                     <div id="fortuneResultTodayBox" class="hidden mt-3 w-full max-w-sm bg-slate-950/90 border border-cyan-500/40 rounded-xl p-3 text-center">
                         <span class="text-[11px] text-slate-400 font-bold block">نتيجة اليوم:</span>
                         <span id="fortuneResultTodayText" class="text-sm font-black text-cyan-300 mt-0.5 block"></span>
+                        <button id="claimPendingFortuneChoiceBtn" onclick="openPendingFortuneChoiceModal()" class="hidden mt-2.5 w-full py-2 rounded-lg btn-hud-purple text-white font-black text-xs">اختيار مكافأتك الآن</button>
                     </div>
                 </div>
                 <div class="lg:col-span-5 hud-panel-cyan hud-corners text-cyan-400 rounded-2xl p-5">
@@ -440,9 +473,12 @@
                     </div>
                 </div>
                 <div class="lg:col-span-5 hud-panel-purple hud-corners text-purple-400 rounded-2xl p-5">
-                    <h4 class="text-base font-black text-white glow-purple mb-4 border-b border-slate-800 pb-2">إدارة العقابات</h4>
+                    <div class="flex items-center justify-between gap-2 mb-4 border-b border-slate-800 pb-2">
+                        <h4 class="text-base font-black text-white glow-purple">إدارة العقابات</h4>
+                        <button onclick="restoreDefaultPunishments()" class="px-2.5 py-1 rounded-lg bg-slate-900 border border-purple-500/40 hover:border-purple-300 text-[11px] font-black text-purple-200 transition" title="استعادة العقابات الستة الافتراضية">استعادة الافتراضي</button>
+                    </div>
                     <div class="flex gap-2 mb-4">
-                        <input id="newPunishmentInput" type="text" placeholder="اكتب العقاب الجديد..." class="flex-1 bg-slate-950 border border-slate-700 focus:border-purple-400 rounded-xl px-3 py-2 text-xs sm:text-sm text-white font-bold outline-none">
+                        <input id="newPunishmentInput" type="text" maxlength="100" placeholder="اكتب العقاب الجديد..." class="flex-1 bg-slate-950 border border-slate-700 focus:border-purple-400 rounded-xl px-3 py-2 text-xs sm:text-sm text-white font-bold outline-none">
                         <button onclick="addPunishmentSlice()" class="px-4 py-2 rounded-xl btn-hud-purple text-white font-black text-xs">إضافة</button>
                     </div>
                     <div id="punishmentEditorList" class="max-h-[340px] overflow-y-auto space-y-2 pr-1"></div>
@@ -450,7 +486,7 @@
             </div>
         </section>
 
-        <!-- التبويب 4: بيانات الحساب (مبسط) -->
+        <!-- التبويب 4: بيانات الحساب -->
         <section id="tabContent_account" class="hidden flex-col gap-5">
             <div class="hud-panel-cyan hud-corners text-cyan-400 rounded-2xl p-6 text-center max-w-2xl mx-auto w-full">
                 <h3 class="text-xl font-black text-white glow-cyan mb-2">إدارة بيانات الحساب</h3>
@@ -461,11 +497,11 @@
                         <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                         <span>تحميل ملف الحساب (نسخة احتياطية)</span>
                     </button>
-                    
+
                     <label class="py-4 px-4 rounded-xl btn-hud-purple text-white font-black text-sm flex flex-col items-center justify-center gap-2 cursor-pointer">
                         <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
                         <span>رفع ملف الحساب (استعادة)</span>
-                        <input type="file" class="hidden" accept=".json" onchange="uploadBackup(event)">
+                        <input id="backupUploadInput" type="file" class="hidden" accept=".json" onchange="uploadBackup(event)">
                     </label>
                 </div>
             </div>
@@ -473,9 +509,9 @@
     </main>
 
     <!-- النوافذ المنبثقة (Modals) -->
-    
+
     <!-- نافذة إضافة/تعديل مهمة -->
-    <div id="questModal" class="fixed inset-0 z-[60] bg-black/85 backdrop-blur-md hidden items-center justify-center p-4">
+    <div id="questModal" class="fixed inset-0 z-[60] bg-black/85 backdrop-blur-md hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="questModalTitle">
         <div class="hud-panel-cyan hud-corners text-cyan-400 w-full max-w-md rounded-2xl p-5 sm:p-6 animate-hud-modal">
             <h3 id="questModalTitle" class="text-lg font-black text-white glow-cyan mb-4 border-b border-slate-800 pb-3">إضافة مهمة جديدة</h3>
             <div class="space-y-4">
@@ -487,16 +523,30 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-sm font-black text-cyan-300 mb-1">النقاط (الإنجاز):</label>
-                        <input id="questModalPoints" type="number" min="1" value="10" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3 py-2 text-white font-bold outline-none text-center">
+                        <input id="questModalPoints" type="number" min="1" max="100000" value="10" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3 py-2 text-white font-bold outline-none text-center">
                     </div>
                     <div>
                         <label class="block text-sm font-black text-cyan-300 mb-1">نوع المهمة:</label>
-                        <select id="questModalType" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3 py-2 text-white font-bold outline-none">
+                        <select id="questModalType" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3 py-2 text-white font-bold outline-none text-xs sm:text-sm">
                             <option value="repeatable">متكررة يومياً</option>
-                            <option value="onetime">مرة واحدة فقط</option>
+                            <option value="onetime">مرة واحدة يومياً (تتجدد غداً)</option>
                         </select>
                     </div>
                 </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-black text-cyan-300 mb-1">طريقة التنفيذ:</label>
+                        <select id="questModalMode" onchange="toggleTasbeehFields()" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-400 rounded-xl px-3 py-2 text-white font-bold outline-none text-xs sm:text-sm">
+                            <option value="normal">إنجاز عادي</option>
+                            <option value="tasbeeh">عداد تسبيح / استغفار</option>
+                        </select>
+                    </div>
+                    <div id="tasbeehTargetWrap" class="hidden">
+                        <label class="block text-sm font-black text-cyan-300 mb-1">عدد التكرارات:</label>
+                        <input id="questModalTarget" type="number" min="1" max="100000" value="100" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold text-center">
+                    </div>
+                </div>
+                <p class="text-[11px] text-slate-400">في وضع التسبيح، تُضاف نقاط المهمة تلقائياً عند إكمال العدد المحدد.</p>
                 <div class="flex gap-3 mt-2 pt-2 border-t border-slate-800">
                     <button onclick="saveQuestModal()" class="flex-1 py-3 rounded-xl btn-hud-cyan text-white font-black text-sm">حفظ التغييرات</button>
                     <button onclick="closeQuestModal()" class="flex-1 py-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 hover:text-white hover:border-slate-500 font-black text-sm transition">إلغاء</button>
@@ -505,12 +555,77 @@
         </div>
     </div>
 
+    <!-- المسبحة الإلكترونية -->
+    <div id="tasbeehModal" class="fixed inset-0 z-[90] bg-black/85 backdrop-blur-md hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="tasbeehModalTitle">
+        <div class="hud-panel-cyan hud-corners w-full max-w-sm rounded-2xl p-5 animate-hud-modal text-center">
+            <div class="flex items-center justify-between gap-3 mb-3">
+                <h3 id="tasbeehModalTitle" class="text-lg font-black text-white glow-cyan">المسبحة الإلكترونية</h3>
+                <button onclick="closeTasbeehModal()" class="text-slate-400 hover:text-white p-1" aria-label="إغلاق">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <p id="tasbeehModalTask" class="text-sm text-cyan-200 font-bold mb-4 quest-full-text"></p>
+            <button id="tasbeehBeadButton" onclick="tapTasbeehBead()" class="relative mx-auto w-52 h-52 rounded-full flex items-center justify-center focus:outline-none active:scale-95 transition" aria-label="اضغط للتسبيح">
+                <svg class="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 200 200">
+                    <circle cx="100" cy="100" r="88" fill="none" stroke="#1e293b" stroke-width="10"/>
+                    <circle id="tasbeehRingProgress" cx="100" cy="100" r="88" fill="none" stroke="#22d3ee" stroke-width="10" stroke-linecap="round" stroke-dasharray="553" stroke-dashoffset="553"/>
+                </svg>
+                <span class="absolute inset-4 rounded-full border border-cyan-400/40 bg-gradient-to-br from-cyan-950 via-slate-950 to-blue-950 shadow-[inset_0_0_30px_rgba(34,211,238,.18),0_0_25px_rgba(34,211,238,.18)]"></span>
+                <span class="relative flex flex-col items-center gap-1">
+                    <span class="text-xs text-cyan-200 font-bold">اضغط للتسبيح</span>
+                    <strong id="tasbeehModalCount" class="text-4xl font-black text-white font-tech">0</strong>
+                    <span id="tasbeehModalTarget" class="text-xs text-slate-400">من 100</span>
+                </span>
+            </button>
+            <div class="flex items-center justify-center gap-3 mt-4">
+                <button onclick="incrementActiveTasbeeh(-1)" class="px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white font-black">−1</button>
+                <button onclick="incrementActiveTasbeeh(10)" class="px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-cyan-200 font-black">+10</button>
+            </div>
+            <p id="tasbeehModalHint" class="text-[11px] text-slate-400 mt-3">كل ضغطة تسجل تسبيحة واحدة</p>
+        </div>
+    </div>
+
+    <!-- دليل قواعد النظام -->
+    <div id="rulesModal" class="fixed inset-0 z-[80] bg-black/85 backdrop-blur-md hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="rulesTitle">
+        <div class="hud-panel-cyan hud-corners w-full max-w-lg rounded-2xl p-5 animate-hud-modal max-h-[85vh] overflow-y-auto">
+            <div class="flex items-center justify-between gap-3 border-b border-slate-800 pb-3 mb-4">
+                <h3 id="rulesTitle" class="text-lg font-black text-white glow-cyan">دليل قواعد النظام</h3>
+                <button onclick="closeRulesModal()" class="text-slate-400 hover:text-white p-1" aria-label="إغلاق">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="space-y-3 text-sm leading-8 text-slate-200">
+                <p class="bg-cyan-950/40 border border-cyan-500/30 rounded-xl p-3"><strong class="text-cyan-300">1. بداية اليوم وأيام الالتزام:</strong> يبدأ اليوم الجديد تلقائياً الساعة 12:00 ص (منتصف الليل). يجب عليك جمع 100 نقطة على الأقل في اليوم لتجاوز العقاب اليومي، ولا يُحتسب اليوم ضمن عداد «مسار الالتزام» إلا بعد بلوغ 100 نقطة. وإذا تغيبت لعدة أيام يقف عداد الالتزام عند آخر يوم التزمت فيه.</p>
+                <p class="bg-rose-950/30 border border-rose-500/30 rounded-xl p-3"><strong class="text-rose-300">2. عند عدم بلوغ الهدف:</strong> إذا انتهى اليوم ورصيدك أقل من 100 نقطة، يُفعّل العقاب الإجباري في اليوم التالي، ويلزم تدوير عجلة العقاب وتنفيذ النتيجة (أو استخدام بطاقة إعفاء إن توفرت) قبل متابعة النظام.</p>
+                <p class="bg-purple-950/30 border border-purple-500/30 rounded-xl p-3"><strong class="text-purple-300">3. عجلة الحظ:</strong> يمكنك تدوير عجلة الحظ مرة واحدة يومياً. قد تمنحك نقاطاً أو مضاعفة X2 أو بطاقة إعفاء أو خيار «اختار بنفسك»، وقد تخصم نقاطاً أو لا تمنحك شيئاً.</p>
+                <p class="bg-slate-900 border border-slate-700 rounded-xl p-3"><strong class="text-cyan-300">4. المهام وتجددها اليومي:</strong> المهام المتكررة يمكن إنجازها عدة مرات يومياً وتتجدد الساعة 12:00 ص. أما مهام المرة الواحدة فتُنجز مرة واحدة فقط خلال اليوم وتتجدد تلقائياً في اليوم التالي الساعة 12:00 ص.</p>
+                <p class="bg-slate-900 border border-slate-700 rounded-xl p-3"><strong class="text-emerald-300">5. عداد التسبيح:</strong> أضف تسبيحاً أو استغفاراً وحدد العدد المطلوب. سجّل كل تكرار، وعند اكتمال العدد تُنجز المهمة وتُضاف نقاطها تلقائياً.</p>
+                <p class="text-xs text-slate-400">يتم حفظ بياناتك وسجل جميع أيامك منذ أول دخول على هذا الجهاز. استخدم النسخة الاحتياطية من تبويب بيانات الحساب للاحتفاظ بنسخة خارجية.</p>
+            </div>
+            <button onclick="closeRulesModal()" class="mt-4 w-full py-3 rounded-xl btn-hud-cyan text-white font-black">فهمت</button>
+        </div>
+    </div>
+
+    <!-- سجل النقاط والتقدم الدائم لجميع الأيام -->
+    <div id="progressModal" class="fixed inset-0 z-[80] bg-black/85 backdrop-blur-md hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="progressTitle">
+        <div class="hud-panel-purple hud-corners w-full max-w-xl rounded-2xl p-5 animate-hud-modal max-h-[85vh] overflow-y-auto">
+            <div class="flex items-center justify-between gap-3 border-b border-slate-800 pb-3 mb-4">
+                <h3 id="progressTitle" class="text-lg font-black text-white glow-purple">سجل التقدم والنقاط</h3>
+                <button onclick="closeProgressModal()" class="text-slate-400 hover:text-white p-1" aria-label="إغلاق">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div id="progressHistoryContent" class="space-y-3"></div>
+            <button onclick="closeProgressModal()" class="mt-4 w-full py-3 rounded-xl btn-hud-purple text-white font-black">إغلاق السجل</button>
+        </div>
+    </div>
+
     <!-- 1. شاشة العقاب الإجباري (Forced Penalty Overlay) -->
-    <div id="forcedPenaltyOverlay" class="fixed inset-0 z-[9999] bg-slate-950/95 backdrop-blur-xl hidden flex-col items-center justify-center p-6 text-center">
-        <div class="max-w-md w-full hud-panel-purple hud-corners text-purple-400 p-8 rounded-2xl shadow-[0_0_50px_rgba(244,63,94,0.3)] border-rose-500/50">
+    <div id="forcedPenaltyOverlay" class="fixed inset-0 z-[9999] bg-slate-950/95 backdrop-blur-xl hidden flex-col items-center justify-center p-6 text-center overflow-y-auto">
+        <div class="max-w-md w-full hud-panel-purple hud-corners text-purple-400 p-8 rounded-2xl shadow-[0_0_50px_rgba(244,63,94,0.3)] border-rose-500/50 my-auto">
             <h2 class="text-3xl font-black text-white glow-crimson mb-3">تحذير النظام!</h2>
             <p class="text-sm font-bold text-rose-300 mb-6">لقد جمعت أقل من 100 نقطة بالأمس.<br>تم تفعيل بروتوكول العقاب الإجباري. لن تتمكن من المتابعة حتى تنفذ العقاب.</p>
-            
+
             <div class="relative w-full aspect-square my-4 mx-auto max-w-[280px] flex items-center justify-center">
                 <div class="absolute -top-3 left-1/2 -translate-x-1/2 z-20 drop-shadow-[0_0_10px_rgba(244,63,94,0.95)]">
                     <svg width="30" height="30" viewBox="0 0 40 40"><polygon points="20,36 6,8 34,8" fill="#f43f5e" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round"/></svg>
@@ -521,19 +636,23 @@
             <button id="forcedPenaltySpinBtn" onclick="spinForcedPenaltyWheel()" class="mt-4 w-full py-4 rounded-xl btn-hud-crimson text-white font-black text-lg">
                 لف عجلة العقاب الإجبارية
             </button>
-            
-            <div id="forcedPenaltyResultBox" class="hidden mt-4 w-full flex-col gap-4">
+
+            <div id="forcedPenaltyResultBox" class="hidden mt-4 w-full flex-col gap-3">
                 <span class="text-base text-rose-300 font-bold">عقاب اليوم الواجب تنفيذه:</span>
                 <span id="forcedPenaltyResultText" class="text-xl font-black text-white glow-crimson quest-full-text"></span>
                 <button onclick="completeForcedPenalty()" class="mt-2 w-full py-3.5 rounded-xl btn-hud-emerald text-white font-black text-base">
                     اضغط هنا عند الانتهاء من العقاب
                 </button>
             </div>
+
+            <button id="forcedPenaltyShieldBtn" onclick="useExemptionCardOnForcedPenalty()" class="hidden mt-3 w-full py-3 rounded-xl btn-hud-purple text-white font-black text-sm">
+                استخدام بطاقة إعفاء
+            </button>
         </div>
     </div>
 
     <!-- 2. نافذة تخصيص الهوية -->
-    <div id="profileModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-4 overflow-y-auto">
+    <div id="profileModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-4 overflow-y-auto" role="dialog" aria-modal="true">
         <div class="hud-panel-cyan hud-corners text-cyan-400 w-full max-w-lg rounded-2xl p-5 sm:p-6 animate-hud-modal my-8">
             <h3 class="text-lg font-black text-white glow-cyan mb-4 border-b border-slate-800 pb-3">تخصيص الهوية الشخصية</h3>
             <div class="space-y-5">
@@ -553,7 +672,7 @@
     </div>
 
     <!-- 3. نافذة نتيجة دوران عجلة الحظ -->
-    <div id="wheelResultModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-4">
+    <div id="wheelResultModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-4" role="dialog" aria-modal="true">
         <div id="wheelResultCard" class="hud-panel-cyan hud-corners text-cyan-400 w-full max-w-md rounded-2xl p-6 text-center animate-hud-modal">
             <div id="wheelResultSvgBox" class="w-16 h-16 mx-auto mb-4 rounded-full bg-slate-950 border-2 border-current flex items-center justify-center">
                 <svg class="w-8 h-8 text-cyan-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
@@ -573,7 +692,7 @@
     </div>
 
     <!-- 4. نافذة ارتقاء المستوى المطورة -->
-    <div id="levelUpModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-4">
+    <div id="levelUpModal" class="fixed inset-0 z-[70] bg-black/85 backdrop-blur-md hidden items-center justify-center p-4" role="dialog" aria-modal="true">
         <div class="hud-panel-purple hud-corners text-purple-400 w-full max-w-md rounded-2xl p-7 text-center animate-hud-modal overflow-hidden relative">
             <div class="inline-block px-3 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400/60 text-cyan-300 text-[11px] font-black font-tech tracking-widest mb-2">
                 SYSTEM LEVEL UP
@@ -610,8 +729,14 @@
 
     <script>
         /* ==========================================================================
-           1. الرسوميات والشخصيات المتوافقة (Faceless SVGs - 100% Zero Emojis)
+           1. الثوابت، الأيقونات (SVGs بدون أي إيموجي)، الألقاب، والبيانات الافتراضية
            ========================================================================== */
+        const STORAGE_KEY = 'zero_plus_v1_data';
+        const CURRENT_SCHEMA_VERSION = 2;
+        const DAILY_COMMITMENT_TARGET = 100;
+        const HISTORY_PAGE_SIZE = 14;
+        const DATE_KEY_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+
         const AVATAR_SVGS = {
             skeleton: `<svg viewBox="0 0 80 80" class="w-full h-full"><path d="M20 70 L20 40 C20 15, 60 15, 60 40 L60 70 Z" fill="#111827" stroke="#374151" stroke-width="2"/><circle cx="40" cy="45" r="14" fill="#030712"/><circle cx="34" cy="43" r="2.5" fill="#00f0ff" filter="drop-shadow(0 0 4px #00f0ff)"/><circle cx="46" cy="43" r="2.5" fill="#00f0ff" filter="drop-shadow(0 0 4px #00f0ff)"/></svg>`,
             mage: `<svg viewBox="0 0 80 80" class="w-full h-full"><path d="M10 80 L30 45 L50 45 L70 80 Z" fill="#1e1b4b" stroke="#312e81" stroke-width="2"/><polygon points="5,45 40,5 75,45" fill="#312e81" stroke="#4338ca" stroke-width="2"/><polygon points="30,45 50,45 40,65" fill="#020617"/><circle cx="40" cy="55" r="5" fill="#a855f7" filter="drop-shadow(0 0 6px #a855f7)"/></svg>`,
@@ -630,26 +755,15 @@
             { minLvl: 30, title: 'رتبة SS - العاهل المطلق' }
         ];
 
-        function getRankInfo(level) {
-            let current = SYSTEM_RANKS[0];
-            let next = null;
-            for (let i = 0; i < SYSTEM_RANKS.length; i++) {
-                if (level >= SYSTEM_RANKS[i].minLvl) {
-                    current = SYSTEM_RANKS[i];
-                    next = SYSTEM_RANKS[i + 1] || null;
-                }
-            }
-            return { current, next };
-        }
-
         const DEFAULT_TASKS = [
-            { id: 'r1', title: 'مونتاج 30 دقيقة', points: 20, type: 'repeatable', todayCount: 0, completedToday: false },
-            { id: 'r2', title: 'صلاة فرض', points: 10, type: 'repeatable', todayCount: 0, completedToday: false },
-            { id: 'r3', title: 'اذكار الصبح', points: 5, type: 'repeatable', todayCount: 0, completedToday: false },
-            { id: 'r4', title: 'اذكار المساء', points: 5, type: 'repeatable', todayCount: 0, completedToday: false },
-            { id: 'r5', title: '100 استغفار', points: 5, type: 'repeatable', todayCount: 0, completedToday: false },
-            { id: 'o1', title: 'مساعدة الوالدة 10 دقائق', points: 20, type: 'onetime', todayCount: 0, completedToday: false },
-            { id: 'o2', title: '100 عدة ضغط', points: 20, type: 'onetime', todayCount: 0, completedToday: false }
+            { id: 'r1', title: 'مونتاج 30 دقيقة', points: 20, type: 'repeatable', todayCount: 0, completedToday: false, kind: 'normal', targetCount: 100, tasbeehProgress: 0 },
+            { id: 'r2', title: 'صلاة فرض', points: 10, type: 'repeatable', todayCount: 0, completedToday: false, kind: 'normal', targetCount: 100, tasbeehProgress: 0 },
+            { id: 'r3', title: 'اذكار الصبح', points: 5, type: 'repeatable', todayCount: 0, completedToday: false, kind: 'normal', targetCount: 100, tasbeehProgress: 0 },
+            { id: 'r4', title: 'اذكار المساء', points: 5, type: 'repeatable', todayCount: 0, completedToday: false, kind: 'normal', targetCount: 100, tasbeehProgress: 0 },
+            { id: 'r5', title: '100 استغفار', points: 5, type: 'repeatable', todayCount: 0, completedToday: false, kind: 'tasbeeh', targetCount: 100, tasbeehProgress: 0 },
+            { id: 'r6', title: 'ساعة محتوي مفيد', points: 20, type: 'repeatable', todayCount: 0, completedToday: false, kind: 'normal', targetCount: 100, tasbeehProgress: 0 },
+            { id: 'o1', title: 'مساعدة الوالدة 10 دقائق', points: 20, type: 'onetime', todayCount: 0, completedToday: false, kind: 'normal', targetCount: 100, tasbeehProgress: 0 },
+            { id: 'o2', title: '100 عدة ضغط', points: 20, type: 'onetime', todayCount: 0, completedToday: false, kind: 'normal', targetCount: 100, tasbeehProgress: 0 }
         ];
 
         const FORTUNE_WHEEL_ITEMS = [
@@ -670,38 +784,431 @@
             { id: 'p6', label: 'ساعة بدون هاتف', shape: 'minus' }
         ];
 
-        function getTodayDateString() {
-            const now = new Date();
-            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        /* ==========================================================================
+           2. دوال مساعدة (الأمان، تنسيق الأيام بالعربية، والتوقيت المحلي 12:00 ص)
+           ========================================================================== */
+        function escapeHTML(value) {
+            return String(value ?? '').replace(/[&<>"']/g, ch => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[ch]));
+        }
+
+        function getRankInfo(level) {
+            let current = SYSTEM_RANKS[0];
+            let next = null;
+            for (let i = 0; i < SYSTEM_RANKS.length; i++) {
+                if (level >= SYSTEM_RANKS[i].minLvl) {
+                    current = SYSTEM_RANKS[i];
+                    next = SYSTEM_RANKS[i + 1] || null;
+                }
+            }
+            return { current, next };
+        }
+
+        /**
+         * تنسيق عدد الأيام بالعربية الفصحى السليمة:
+         * 0 يوم، 1 يوم، يومان، 3 أيام ... 10 أيام، 11 يوم ...
+         */
+        function formatArabicDayCount(count) {
+            const n = Math.max(0, Math.floor(Number(count) || 0));
+            if (n === 0) return '0 يوم';
+            if (n === 1) return '1 يوم';
+            if (n === 2) return 'يومان';
+            if (n >= 3 && n <= 10) return `${n} أيام`;
+            return `${n} يوم`;
+        }
+
+        /**
+         * إرجاع تاريخ اليوم المحلي بصيغة YYYY-MM-DD (اليوم يبدأ 12:00 ص وينتهي 11:59:59 م)
+         */
+        function getTodayDateString(date = new Date()) {
+            const d = date instanceof Date ? date : new Date();
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        }
+
+        function isValidDateKey(key) {
+            if (typeof key !== 'string' || !DATE_KEY_REGEX.test(key)) return false;
+            const [y, m, d] = key.split('-').map(Number);
+            const dt = new Date(y, m - 1, d, 0, 0, 0, 0);
+            return dt.getFullYear() === y && dt.getMonth() === (m - 1) && dt.getDate() === d;
+        }
+
+        function parseDateKey(key) {
+            if (!isValidDateKey(key)) {
+                const now = new Date();
+                return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+            }
+            const [y, m, d] = key.split('-').map(Number);
+            return new Date(y, m - 1, d, 0, 0, 0, 0);
+        }
+
+        function addDaysToKey(key, deltaDays) {
+            const dt = parseDateKey(key);
+            dt.setDate(dt.getDate() + Math.trunc(deltaDays));
+            return getTodayDateString(dt);
+        }
+
+        /**
+         * حساب الفرق التقويمي الدقيق بالأيام دون تأثر بالتوقيت الصيفي
+         */
+        function daysBetweenKeys(startKey, endKey) {
+            const s = parseDateKey(startKey);
+            const e = parseDateKey(endKey);
+            const utcS = Date.UTC(s.getFullYear(), s.getMonth(), s.getDate());
+            const utcE = Date.UTC(e.getFullYear(), e.getMonth(), e.getDate());
+            return Math.round((utcE - utcS) / 86400000);
+        }
+
+        function cloneDefaults(arr) {
+            return arr.map(item => ({ ...item }));
         }
 
         /* ==========================================================================
-           2. حالة التطبيق (State) + محرك الصوت الفائق المتوافق مع الـ APK
+           3. بنية الحالة (State)، التنظيف، والترحيل الآمن لمرة واحدة (Schema Migration)
            ========================================================================== */
-        window.appState = {
-            playerName: '',
-            avatarKey: 'skeleton',
-            totalPoints: 0,
-            todayPoints: 0,
-            challengeStartDate: getTodayDateString(),
-            lastResetDate: getTodayDateString(),
-            doublePointsActiveToday: false,
-            exemptionCards: 0,
-            fortuneSpunToday: false,
-            fortuneTodayResult: '',
-            punishmentSpunToday: false,
-            punishmentTodayResult: '',
-            activePunishmentText: '',
-            needsForcedPenalty: false,
-            forcedPenaltyText: '',
-            tasks: JSON.parse(JSON.stringify(DEFAULT_TASKS)),
-            punishmentItems: JSON.parse(JSON.stringify(DEFAULT_PUNISHMENT_ITEMS))
-        };
+        function createEmptyDayHistoryRecord() {
+            return {
+                totalPointsEarned: 0,
+                committed: false,
+                entries: []
+            };
+        }
 
+        function createDefaultState(now = new Date()) {
+            const todayKey = getTodayDateString(now);
+            return {
+                schemaVersion: CURRENT_SCHEMA_VERSION,
+                playerName: '',
+                avatarKey: 'skeleton',
+                soundEnabled: true,
+                totalPoints: 0,
+                todayPoints: 0,
+                firstVisitDate: todayKey,
+                challengeStartDate: todayKey,
+                lastResetDate: todayKey,
+                committedDates: [],
+                dailyHistory: {
+                    [todayKey]: createEmptyDayHistoryRecord()
+                },
+                doublePointsActiveToday: false,
+                exemptionCards: 0,
+                fortuneSpunToday: false,
+                fortuneTodayResult: '',
+                pendingFortuneChoice: false,
+                punishmentSpunToday: false,
+                punishmentTodayResult: '',
+                activePunishmentText: '',
+                needsForcedPenalty: false,
+                forcedPenaltyText: '',
+                tasks: cloneDefaults(DEFAULT_TASKS),
+                punishmentItems: cloneDefaults(DEFAULT_PUNISHMENT_ITEMS)
+            };
+        }
+
+        window.appState = createDefaultState();
+
+        // متغيرات حالة الواجهة المؤقتة
         let selectedModalAvatar = 'skeleton';
-        let soundEnabled = true;
+        let activeTasbeehTaskId = null;
+        let pendingDeleteTaskId = null;
+        let pendingDeleteTimer = null;
+        let progressFilter = 'all'; // 'all' | 'committed' | 'active'
+        let progressExpandAll = false;
+        let progressVisibleLimit = HISTORY_PAGE_SIZE;
         let wheelAngles = { fortune: 0, punishment: 0, forced: 0 };
         let wheelSpinning = { fortune: false, punishment: false, forced: false };
+
+        function ensureDayRecord(dateKey, targetState = window.appState) {
+            if (!isValidDateKey(dateKey)) return null;
+            if (!targetState.dailyHistory || typeof targetState.dailyHistory !== 'object' || Array.isArray(targetState.dailyHistory)) {
+                targetState.dailyHistory = {};
+            }
+            if (!targetState.dailyHistory[dateKey]) {
+                targetState.dailyHistory[dateKey] = createEmptyDayHistoryRecord();
+            }
+            return targetState.dailyHistory[dateKey];
+        }
+
+        /**
+         * تنظيف والتحقق الكامل من أي كائن حالة (من localStorage أو من ملف نسخة احتياطية)
+         * مع ترحيل البيانات القديمة (pointsHistory / committedDays / schemaVersion < 2) لمرة واحدة
+         */
+        function sanitizeAndMigrateState(raw) {
+            const now = new Date();
+            const todayKey = getTodayDateString(now);
+            const hasSavedData = !!(raw && typeof raw === 'object' && !Array.isArray(raw));
+            const src = hasSavedData ? raw : {};
+            const sourceSchemaVersion = hasSavedData ? Math.floor(Number(src.schemaVersion) || 0) : CURRENT_SCHEMA_VERSION;
+
+            const base = createDefaultState(now);
+            const firstDateCandidate = isValidDateKey(src.firstVisitDate)
+                ? src.firstVisitDate
+                : (isValidDateKey(src.firstSeenDate)
+                    ? src.firstSeenDate
+                    : (isValidDateKey(src.challengeStartDate) ? src.challengeStartDate : todayKey));
+
+            const st = {
+                ...base,
+                schemaVersion: CURRENT_SCHEMA_VERSION,
+                playerName: typeof src.playerName === 'string' ? src.playerName.trim().slice(0, 32) : '',
+                avatarKey: (typeof src.avatarKey === 'string' && AVATAR_SVGS[src.avatarKey]) ? src.avatarKey : 'skeleton',
+                soundEnabled: typeof src.soundEnabled === 'boolean' ? src.soundEnabled : true,
+                totalPoints: Math.max(0, Math.floor(Number(src.totalPoints) || 0)),
+                todayPoints: Math.max(0, Math.floor(Number(src.todayPoints) || 0)),
+                firstVisitDate: firstDateCandidate,
+                challengeStartDate: firstDateCandidate,
+                lastResetDate: isValidDateKey(src.lastResetDate) ? src.lastResetDate : todayKey,
+                committedDates: [],
+                dailyHistory: {},
+                doublePointsActiveToday: !!src.doublePointsActiveToday,
+                exemptionCards: Math.max(0, Math.floor(Number(src.exemptionCards) || 0)),
+                fortuneSpunToday: !!src.fortuneSpunToday,
+                fortuneTodayResult: typeof src.fortuneTodayResult === 'string' ? src.fortuneTodayResult.slice(0, 120) : '',
+                pendingFortuneChoice: !!src.pendingFortuneChoice,
+                punishmentSpunToday: !!src.punishmentSpunToday,
+                punishmentTodayResult: typeof src.punishmentTodayResult === 'string' ? src.punishmentTodayResult.slice(0, 120) : '',
+                activePunishmentText: typeof src.activePunishmentText === 'string' ? src.activePunishmentText.slice(0, 120) : '',
+                needsForcedPenalty: !!src.needsForcedPenalty,
+                forcedPenaltyText: typeof src.forcedPenaltyText === 'string' ? src.forcedPenaltyText.slice(0, 120) : '',
+                tasks: [],
+                punishmentItems: []
+            };
+
+            // 1. تنظيف المهام
+            const rawTasks = Array.isArray(src.tasks) ? src.tasks : cloneDefaults(DEFAULT_TASKS);
+            const usedTaskIds = new Set();
+            st.tasks = rawTasks
+                .filter(t => t && typeof t === 'object')
+                .map((t, idx) => {
+                    let id = /^[a-zA-Z0-9_-]{1,80}$/.test(String(t.id || ''))
+                        ? String(t.id)
+                        : ('t' + Date.now() + '_' + idx);
+                    while (usedTaskIds.has(id)) {
+                        id = id + '_' + Math.random().toString(36).slice(2, 5);
+                    }
+                    usedTaskIds.add(id);
+
+                    const title = String(t.title || 'مهمة').trim().slice(0, 150) || 'مهمة';
+                    const type = t.type === 'onetime' ? 'onetime' : 'repeatable';
+                    const isLegacyTasbeeh = (String(t.id) === 'r5' && /استغفار/.test(title));
+                    const kind = (t.kind === 'tasbeeh' || isLegacyTasbeeh) ? 'tasbeeh' : 'normal';
+                    const targetCount = Math.max(1, Math.min(100000, Math.floor(Number(t.targetCount) || 100)));
+                    let tasbeehProgress = Math.max(0, Math.min(targetCount, Math.floor(Number(t.tasbeehProgress) || 0)));
+                    let completedToday = !!t.completedToday;
+
+                    // المهام المتكررة لا تُغلق أبداً بعد دورة تسبيح واحدة
+                    if (kind === 'tasbeeh' && type === 'repeatable' && completedToday) {
+                        completedToday = false;
+                        tasbeehProgress = 0;
+                    }
+
+                    return {
+                        id,
+                        title,
+                        points: Math.max(1, Math.min(100000, Math.floor(Number(t.points) || 1))),
+                        type,
+                        todayCount: Math.max(0, Math.floor(Number(t.todayCount) || 0)),
+                        completedToday,
+                        kind,
+                        targetCount,
+                        tasbeehProgress
+                    };
+                });
+
+            // 2. تنظيف خانات عجلة العقابات (الاحتفاظ بالكل افتراضياً، مع منع النقص عن 2 أبداً)
+            const rawPunishments = Array.isArray(src.punishmentItems) ? src.punishmentItems : cloneDefaults(DEFAULT_PUNISHMENT_ITEMS);
+            const cleanedPunishments = rawPunishments
+                .filter(x => x && typeof x.label === 'string' && x.label.trim())
+                .slice(0, 24)
+                .map((x, idx) => ({
+                    id: /^[a-zA-Z0-9_-]{1,80}$/.test(String(x.id || '')) ? String(x.id) : ('p' + Date.now() + '_' + idx),
+                    label: x.label.trim().slice(0, 100),
+                    shape: typeof x.shape === 'string' ? x.shape : 'bolt'
+                }));
+
+            // إذا كان هناك ملف/تخزين تالف فيه أقل من خانتين، نعيد العقابات الستة الافتراضية كاملة
+            if (cleanedPunishments.length < 2) {
+                const existingLabels = new Set(cleanedPunishments.map(p => p.label));
+                for (const def of DEFAULT_PUNISHMENT_ITEMS) {
+                    if (!existingLabels.has(def.label)) {
+                        cleanedPunishments.push({ ...def });
+                        existingLabels.add(def.label);
+                    }
+                }
+            }
+            st.punishmentItems = cleanedPunishments;
+
+            // 3. ترحيل لمرة واحدة فقط (schemaVersion < 2):
+            // - استعادة العقابات الافتراضية المفقودة إذا كانت الحالة القديمة مقتصرة على عقابين فقط
+            // - إضافة مهمة "ساعة محتوي مفيد" (r6) تلقائياً لمرة واحدة إذا لم تكن موجودة
+            if (hasSavedData && sourceSchemaVersion < CURRENT_SCHEMA_VERSION) {
+                if (st.punishmentItems.length <= 2) {
+                    const existingLabels = new Set(st.punishmentItems.map(p => p.label));
+                    for (const def of DEFAULT_PUNISHMENT_ITEMS) {
+                        if (!existingLabels.has(def.label) && st.punishmentItems.length < 24) {
+                            st.punishmentItems.push({ ...def });
+                            existingLabels.add(def.label);
+                        }
+                    }
+                }
+
+                const hasR6 = st.tasks.some(t => t.id === 'r6' || t.title.trim() === 'ساعة محتوي مفيد');
+                if (!hasR6) {
+                    const r6Default = DEFAULT_TASKS.find(t => t.id === 'r6');
+                    if (r6Default) {
+                        st.tasks.push({ ...r6Default });
+                    }
+                }
+            }
+
+            // 4. تنظيف dailyHistory (يدعم entries و events)
+            if (src.dailyHistory && typeof src.dailyHistory === 'object' && !Array.isArray(src.dailyHistory)) {
+                Object.keys(src.dailyHistory).forEach(dateKey => {
+                    if (!isValidDateKey(dateKey)) return;
+                    const rec = src.dailyHistory[dateKey];
+                    if (!rec || typeof rec !== 'object') return;
+
+                    const rawEntries = Array.isArray(rec.entries)
+                        ? rec.entries
+                        : (Array.isArray(rec.events) ? rec.events : []);
+
+                    const entries = rawEntries
+                        .filter(e => e && typeof e === 'object')
+                        .map(e => ({
+                            time: typeof e.time === 'string' ? e.time.slice(0, 20) : '',
+                            label: String(e.label || 'عملية نقاط').slice(0, 120),
+                            points: Math.trunc(Number(e.points) || 0),
+                            totalAfter: Math.max(0, Math.floor(Number(e.totalAfter) || 0))
+                        }));
+
+                    const computedEarned = entries.reduce((sum, e) => sum + (e.points > 0 ? e.points : 0), 0);
+                    const storedEarned = Math.max(
+                        0,
+                        Math.floor(Number(rec.totalPointsEarned) || Number(rec.earnedPoints) || 0)
+                    );
+                    const totalPointsEarned = Math.max(storedEarned, computedEarned);
+                    const committed = !!rec.committed || totalPointsEarned >= DAILY_COMMITMENT_TARGET;
+
+                    st.dailyHistory[dateKey] = {
+                        totalPointsEarned,
+                        committed,
+                        entries
+                    };
+                });
+            }
+
+            // 5. ترحيل تلقائي آمن لمصفوفة pointsHistory القديمة (إن وجدت)
+            if (Array.isArray(src.pointsHistory) && src.pointsHistory.length > 0) {
+                const legacyGrouped = {};
+                src.pointsHistory.forEach(e => {
+                    if (!e || typeof e !== 'object') return;
+                    const dk = isValidDateKey(e.date) ? e.date : st.lastResetDate;
+                    (legacyGrouped[dk] ||= []).push({
+                        time: typeof e.time === 'string' ? e.time.slice(0, 20) : '',
+                        label: String(e.label || 'عملية نقاط').slice(0, 120),
+                        points: Math.trunc(Number(e.points) || 0),
+                        totalAfter: Math.max(0, Math.floor(Number(e.totalAfter) || 0))
+                    });
+                });
+
+                Object.keys(legacyGrouped).forEach(dk => {
+                    const dayRec = ensureDayRecord(dk, st);
+                    if (dayRec.entries.length === 0) {
+                        dayRec.entries = legacyGrouped[dk];
+                        const earned = dayRec.entries.reduce((sum, e) => sum + (e.points > 0 ? e.points : 0), 0);
+                        dayRec.totalPointsEarned = Math.max(dayRec.totalPointsEarned, earned);
+                        if (dayRec.totalPointsEarned >= DAILY_COMMITMENT_TARGET) {
+                            dayRec.committed = true;
+                        }
+                    }
+                });
+            }
+
+            // 6. مزامنة سجل آخر يوم نشط مع todayPoints
+            const lastDayRec = ensureDayRecord(st.lastResetDate, st);
+            if (lastDayRec) {
+                lastDayRec.totalPointsEarned = Math.max(lastDayRec.totalPointsEarned, st.todayPoints);
+                if (lastDayRec.totalPointsEarned >= DAILY_COMMITMENT_TARGET) {
+                    lastDayRec.committed = true;
+                }
+            }
+
+            // 7. تجميع أيام الالتزام الفريدة (committedDates + committedDays القديمة + الأيام >= 100 نقطة)
+            const committedSet = new Set();
+            const rawCommittedList = [
+                ...(Array.isArray(src.committedDates) ? src.committedDates : []),
+                ...(Array.isArray(src.committedDays) ? src.committedDays : [])
+            ];
+            rawCommittedList.forEach(dk => {
+                if (isValidDateKey(dk)) {
+                    committedSet.add(dk);
+                    const rec = ensureDayRecord(dk, st);
+                    if (rec) rec.committed = true;
+                }
+            });
+            Object.keys(st.dailyHistory).forEach(dk => {
+                const rec = st.dailyHistory[dk];
+                if (rec.committed || rec.totalPointsEarned >= DAILY_COMMITMENT_TARGET) {
+                    rec.committed = true;
+                    committedSet.add(dk);
+                }
+            });
+            st.committedDates = Array.from(committedSet).sort();
+
+            // 8. تحديد أقدم تاريخ مسجل كأول يوم دخول (firstVisitDate)
+            const allKnownDates = [
+                st.firstVisitDate,
+                st.challengeStartDate,
+                st.lastResetDate,
+                todayKey,
+                ...Object.keys(st.dailyHistory),
+                ...st.committedDates
+            ].filter(isValidDateKey).sort();
+            if (allKnownDates.length > 0) {
+                st.firstVisitDate = allKnownDates[0];
+                st.challengeStartDate = allKnownDates[0];
+            }
+
+            return st;
+        }
+
+        function loadState() {
+            let parsed = null;
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) parsed = JSON.parse(raw);
+            } catch (e) {
+                console.warn('تعذر تحميل البيانات المحفوظة، سيتم استخدام الإعدادات الافتراضية.', e);
+            }
+
+            window.appState = sanitizeAndMigrateState(parsed);
+            syncSoundIcon();
+
+            const todayKey = getTodayDateString();
+            ensureDayRecord(todayKey);
+
+            if (window.appState.lastResetDate !== todayKey) {
+                performMidnightReset(todayKey);
+            } else {
+                saveState();
+            }
+        }
+
+        window.saveState = function() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(window.appState));
+            } catch (e) {
+                showToast('تعذر الحفظ: مساحة التخزين ممتلئة أو غير متاحة');
+                console.error(e);
+            }
+        };
+
+        /* ==========================================================================
+           4. محرك الصوت (Web Audio Synth + DynamicsCompressor متوافق مع WebView/APK)
+           ========================================================================== */
         let audioCtx = null;
         let masterGain = null;
         let masterCompressor = null;
@@ -720,14 +1227,13 @@
                     masterCompressor.release.setValueAtTime(0.15, audioCtx.currentTime);
 
                     masterGain = audioCtx.createGain();
-                    masterGain.gain.setValueAtTime(soundEnabled ? 1.35 : 0, audioCtx.currentTime);
+                    masterGain.gain.setValueAtTime(window.appState.soundEnabled ? 1.35 : 0, audioCtx.currentTime);
                     masterGain.connect(masterCompressor);
                     masterCompressor.connect(audioCtx.destination);
                 }
                 if (audioCtx.state === 'suspended') {
                     audioCtx.resume();
                 }
-                // نبضة صامتة لفتح الصوت في تطبيقات الأندرويد APK WebView
                 const silentBuffer = audioCtx.createBuffer(1, 1, 22050);
                 const source = audioCtx.createBufferSource();
                 source.buffer = silentBuffer;
@@ -741,7 +1247,7 @@
         });
 
         function playSynthNote(freq, type, duration, delay = 0, vol = 0.45, endFreq = null) {
-            if (!soundEnabled) return;
+            if (!window.appState.soundEnabled) return;
             unlockAudioEngine();
             if (!audioCtx) return;
             try {
@@ -774,10 +1280,10 @@
         }
 
         function playTaskComplete() {
-            playSynthNote(523.25, 'triangle', 0.11, 0.00, 0.45); // C5
-            playSynthNote(659.25, 'triangle', 0.11, 0.07, 0.45); // E5
-            playSynthNote(783.99, 'triangle', 0.13, 0.14, 0.50); // G5
-            playSynthNote(1046.50, 'sine', 0.32, 0.21, 0.60);   // C6
+            playSynthNote(523.25, 'triangle', 0.11, 0.00, 0.45);
+            playSynthNote(659.25, 'triangle', 0.11, 0.07, 0.45);
+            playSynthNote(783.99, 'triangle', 0.13, 0.14, 0.50);
+            playSynthNote(1046.50, 'sine', 0.32, 0.21, 0.60);
         }
 
         function playLevelUpFanfare() {
@@ -798,86 +1304,178 @@
             playSynthNote(210, 'sawtooth', 0.42, 0.19, 0.55, 115);
         }
 
+        function syncSoundIcon() {
+            const icon = document.getElementById('soundSvgIcon');
+            if (!icon) return;
+            icon.innerHTML = window.appState.soundEnabled
+                ? `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>`
+                : `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line>`;
+        }
+
+        function toggleSound() {
+            window.appState.soundEnabled = !window.appState.soundEnabled;
+            if (masterGain && audioCtx) {
+                masterGain.gain.setValueAtTime(window.appState.soundEnabled ? 1.35 : 0, audioCtx.currentTime);
+            }
+            if (window.appState.soundEnabled) playClick();
+            syncSoundIcon();
+            saveState();
+            showToast(window.appState.soundEnabled ? 'تم تفعيل الصوت' : 'تم كتم الصوت');
+        }
+
         document.addEventListener('click', (e) => {
             const btn = e.target.closest('button');
-            if (btn && btn.id !== 'soundToggleBtn') {
+            if (btn && btn.id !== 'soundToggleBtn' && !btn.disabled) {
                 playClick();
             }
         });
 
         /* ==========================================================================
-           3. التخزين والإعدادات الصارمة
+           5. نظام تجديد اليوم (12:00 ص)، تسجيل السجل الدائم، وأيام الالتزام
            ========================================================================== */
-        const STORAGE_KEY = 'zero_plus_v1_data';
+        /**
+         * تسجيل اليوم ضمن committedDates فقط عند إكمال 100 نقطة على الأقل
+         */
+        function markDateCommitted(dateKey) {
+            if (!isValidDateKey(dateKey)) return false;
+            const rec = ensureDayRecord(dateKey);
+            if (rec) rec.committed = true;
 
-        function loadState() {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            if (raw) {
-                try {
-                    const parsed = JSON.parse(raw);
-                    window.appState = { ...window.appState, ...parsed };
-                } catch (e) {}
+            if (!window.appState.committedDates.includes(dateKey)) {
+                window.appState.committedDates.push(dateKey);
+                window.appState.committedDates.sort();
+                return true;
             }
-            const todayStr = getTodayDateString();
-            if (window.appState.lastResetDate !== todayStr) {
-                performStrictMidnightReset(todayStr);
-            }
+            return false;
         }
 
-        window.saveState = function() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(window.appState));
-        };
+        /**
+         * تسجيل عملية نقاط دائمة في سجل اليوم الحالي بدون حذف أي أيام سابقة
+         */
+        function recordPoints(label, points) {
+            const now = new Date();
+            const todayKey = getTodayDateString(now);
+            const rec = ensureDayRecord(todayKey);
+            const pts = Math.trunc(Number(points) || 0);
 
-        function performStrictMidnightReset(newDateStr) {
-            // نظام العقاب الصارم: إذا جمعت أقل من 100 نقطة، يتم فرض عقاب اليوم التالي
-            if (window.appState.todayPoints < 100) {
-                window.appState.needsForcedPenalty = true;
-                window.appState.forcedPenaltyText = '';
+            rec.entries.push({
+                time: now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
+                label: String(label).slice(0, 120),
+                points: pts,
+                totalAfter: window.appState.totalPoints
+            });
+
+            if (pts > 0) {
+                rec.totalPointsEarned = Math.max(rec.totalPointsEarned + pts, window.appState.todayPoints);
             }
 
+            let newlyCommitted = false;
+            if (window.appState.todayPoints >= DAILY_COMMITMENT_TARGET) {
+                newlyCommitted = markDateCommitted(todayKey);
+            }
+            return newlyCommitted;
+        }
+
+        /**
+         * تجديد اليوم تلقائياً عند الساعة 12:00 ص (منتصف الليل):
+         * - يحفظ حالة اليوم السابق بالكامل
+         * - لا يزيد عداد الالتزام للأيام الفائتة بدون دخول
+         * - يجدد المهام المتكررة ومهام المرة الواحدة تلقائياً لليوم الجديد
+         * - يفعّل العقاب الإجباري إذا انتهى اليوم السابق بأقل من 100 نقطة
+         */
+        function performMidnightReset(newDateKey) {
+            const prevDateKey = window.appState.lastResetDate;
+            const prevRec = ensureDayRecord(prevDateKey);
+            if (prevRec) {
+                prevRec.totalPointsEarned = Math.max(prevRec.totalPointsEarned, window.appState.todayPoints);
+                if (prevRec.totalPointsEarned >= DAILY_COMMITMENT_TARGET) {
+                    markDateCommitted(prevDateKey);
+                }
+            }
+
+            // تفعيل العقاب الإجباري إذا انتهى اليوم السابق بأقل من 100 نقطة
+            if (window.appState.todayPoints < DAILY_COMMITMENT_TARGET) {
+                if (!window.appState.needsForcedPenalty) {
+                    window.appState.needsForcedPenalty = true;
+                    window.appState.forcedPenaltyText = '';
+                }
+            }
+
+            // تصفير عدادات اليوم وتجديد المهام والعجلات
             window.appState.todayPoints = 0;
             window.appState.doublePointsActiveToday = false;
             window.appState.fortuneSpunToday = false;
             window.appState.fortuneTodayResult = '';
+            window.appState.pendingFortuneChoice = false;
             window.appState.punishmentSpunToday = false;
             window.appState.punishmentTodayResult = '';
             window.appState.activePunishmentText = '';
-            
+
             window.appState.tasks.forEach(t => {
                 t.todayCount = 0;
                 t.completedToday = false;
+                if (t.kind === 'tasbeeh') {
+                    t.tasbeehProgress = 0;
+                }
             });
 
-            window.appState.lastResetDate = newDateStr;
+            window.appState.lastResetDate = newDateKey;
+            ensureDayRecord(newDateKey);
+
+            // إغلاق نافذة عجلة الحظ إذا كانت مفتوحة من اليوم السابق
+            const wheelModal = document.getElementById('wheelResultModal');
+            if (wheelModal && !wheelModal.classList.contains('hidden')) {
+                wheelModal.classList.add('hidden');
+                wheelModal.classList.remove('flex');
+            }
+
             saveState();
+        }
+
+        function checkDayRollover() {
+            const todayKey = getTodayDateString();
+            if (window.appState.lastResetDate !== todayKey) {
+                performMidnightReset(todayKey);
+                renderAll();
+                drawWheelCanvas('fortune');
+                drawWheelCanvas('punishment');
+                if (window.appState.needsForcedPenalty) {
+                    drawForcedPenaltyWheel();
+                    playPenaltyAlarm();
+                }
+                if (activeTasbeehTaskId) {
+                    renderTasbeehModal();
+                }
+                if (!document.getElementById('progressModal').classList.contains('hidden')) {
+                    renderProgressHistory();
+                }
+            }
         }
 
         function updateMidnightCountdown() {
             const now = new Date();
-            const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
-            const diff = Math.max(0, midnight - now);
+            const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
+            const diff = Math.max(0, nextMidnight.getTime() - now.getTime());
+
             const h = String(Math.floor(diff / 3600000)).padStart(2, '0');
             const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
             const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
-            document.getElementById('midnightTimerDisplay').textContent = `${h}:${m}:${s}`;
-            
-            const todayStr = getTodayDateString();
-            if (window.appState.lastResetDate !== todayStr) {
-                performStrictMidnightReset(todayStr);
-                renderAll();
-                drawWheelCanvas('fortune');
-                drawWheelCanvas('punishment');
-                if (window.appState.needsForcedPenalty) drawForcedPenaltyWheel();
+            const display = document.getElementById('midnightTimerDisplay');
+            if (display) {
+                display.textContent = `${h}:${m}:${s}`;
             }
+
+            checkDayRollover();
         }
 
         /* ==========================================================================
-           4. واجهة المستخدم وإدارة المهام (إضافة، تعديل، حذف)
+           6. إدارة التبويبات، المهام، والتسبيح الإلكتروني
            ========================================================================== */
         function switchTab(tabName) {
             ['quests', 'fortune', 'punishment', 'account'].forEach(t => {
                 const section = document.getElementById(`tabContent_${t}`);
                 const btn = document.getElementById(`tabBtn_${t}`);
+                if (!section || !btn) return;
                 if (t === tabName) {
                     section.classList.remove('hidden');
                     section.classList.add('flex');
@@ -885,11 +1483,16 @@
                 } else {
                     section.classList.add('hidden');
                     section.classList.remove('flex');
-                    btn.className = 'py-3 px-3 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition bg-slate-900/90 border border-slate-700 text-slate-400';
+                    btn.className = 'py-3 px-3 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition bg-slate-900/90 border border-slate-700 text-slate-400 hover:border-cyan-400';
                 }
             });
             if (tabName === 'fortune') drawWheelCanvas('fortune');
             if (tabName === 'punishment') drawWheelCanvas('punishment');
+        }
+
+        function toggleTasbeehFields() {
+            const isTasbeeh = document.getElementById('questModalMode').value === 'tasbeeh';
+            document.getElementById('tasbeehTargetWrap').classList.toggle('hidden', !isTasbeeh);
         }
 
         function openQuestModal(id = null) {
@@ -901,6 +1504,9 @@
                     document.getElementById('questModalName').value = task.title;
                     document.getElementById('questModalPoints').value = task.points;
                     document.getElementById('questModalType').value = task.type;
+                    document.getElementById('questModalMode').value = task.kind === 'tasbeeh' ? 'tasbeeh' : 'normal';
+                    document.getElementById('questModalTarget').value = task.targetCount || 100;
+                    toggleTasbeehFields();
                 }
             } else {
                 document.getElementById('questModalTitle').textContent = 'إضافة مهمة جديدة';
@@ -908,6 +1514,9 @@
                 document.getElementById('questModalName').value = '';
                 document.getElementById('questModalPoints').value = '10';
                 document.getElementById('questModalType').value = 'repeatable';
+                document.getElementById('questModalMode').value = 'normal';
+                document.getElementById('questModalTarget').value = 100;
+                toggleTasbeehFields();
             }
             document.getElementById('questModal').classList.remove('hidden');
             document.getElementById('questModal').classList.add('flex');
@@ -921,261 +1530,284 @@
         function saveQuestModal() {
             const id = document.getElementById('questModalId').value;
             const title = document.getElementById('questModalName').value.trim();
-            const points = parseInt(document.getElementById('questModalPoints').value) || 10;
-            const type = document.getElementById('questModalType').value;
+            const points = Math.floor(Number(document.getElementById('questModalPoints').value));
+            const type = document.getElementById('questModalType').value === 'onetime' ? 'onetime' : 'repeatable';
+            const kind = document.getElementById('questModalMode').value === 'tasbeeh' ? 'tasbeeh' : 'normal';
+            const targetCount = Math.floor(Number(document.getElementById('questModalTarget').value));
 
             if (!title) return showToast('يرجى كتابة اسم المهمة أولاً');
+            if (!Number.isFinite(points) || points < 1 || points > 100000) return showToast('يجب أن تكون النقاط بين 1 و100000');
+            if (kind === 'tasbeeh' && (!Number.isFinite(targetCount) || targetCount < 1 || targetCount > 100000)) {
+                return showToast('حدد عدداً صحيحاً بين 1 و100000');
+            }
 
             if (id) {
                 const task = window.appState.tasks.find(t => t.id === id);
                 if (task) {
-                    task.title = title;
+                    task.title = title.slice(0, 150);
                     task.points = points;
                     task.type = type;
+                    task.kind = kind;
+                    task.targetCount = kind === 'tasbeeh' ? targetCount : 100;
+                    task.tasbeehProgress = kind === 'tasbeeh' ? Math.min(task.tasbeehProgress || 0, task.targetCount) : 0;
+                    if (type === 'repeatable' && task.completedToday) {
+                        task.completedToday = false;
+                    }
                 }
             } else {
                 window.appState.tasks.push({
-                    id: 't' + Date.now(),
-                    title: title,
-                    points: points,
-                    type: type,
+                    id: 't' + Date.now() + '_' + Math.random().toString(36).slice(2, 5),
+                    title: title.slice(0, 150),
+                    points,
+                    type,
                     todayCount: 0,
-                    completedToday: false
+                    completedToday: false,
+                    kind,
+                    targetCount: kind === 'tasbeeh' ? targetCount : 100,
+                    tasbeehProgress: 0
                 });
             }
+
             saveState();
             renderAll();
             closeQuestModal();
             showToast('تم حفظ المهمة بنجاح');
         }
 
-        function deleteTask(id) {
-            window.appState.tasks = window.appState.tasks.filter(t => t.id !== id);
-            saveState();
-            renderAll();
-            showToast('تم حذف المهمة');
-        }
-
-        window.renderAll = function() {
-            // التحقق من العقاب الإجباري أولاً
-            const overlay = document.getElementById('forcedPenaltyOverlay');
-            if (window.appState.needsForcedPenalty) {
-                overlay.classList.remove('hidden');
-                overlay.classList.add('flex');
-                if (window.appState.forcedPenaltyText) {
-                    document.getElementById('forcedPenaltySpinBtn').classList.add('hidden');
-                    document.getElementById('forcedPenaltyResultBox').classList.remove('hidden');
-                    document.getElementById('forcedPenaltyResultBox').classList.add('flex');
-                    document.getElementById('forcedPenaltyResultText').textContent = window.appState.forcedPenaltyText;
-                } else {
-                    document.getElementById('forcedPenaltySpinBtn').classList.remove('hidden');
-                    document.getElementById('forcedPenaltyResultBox').classList.add('hidden');
-                    document.getElementById('forcedPenaltyResultBox').classList.remove('flex');
-                    setTimeout(() => drawForcedPenaltyWheel(), 100);
-                }
+        /**
+         * حذف آمن للمهمة على خطوتين بدون window.confirm
+         */
+        function requestDeleteTask(id) {
+            if (pendingDeleteTaskId === id) {
+                clearTimeout(pendingDeleteTimer);
+                pendingDeleteTaskId = null;
+                window.appState.tasks = window.appState.tasks.filter(t => t.id !== id);
+                if (activeTasbeehTaskId === id) closeTasbeehModal();
+                saveState();
+                renderAll();
+                showToast('تم حذف المهمة');
             } else {
-                overlay.classList.add('hidden');
-                overlay.classList.remove('flex');
+                pendingDeleteTaskId = id;
+                clearTimeout(pendingDeleteTimer);
+                renderQuests();
+                showToast('اضغط مرة أخرى على "تأكيد؟" لحذف المهمة');
+                pendingDeleteTimer = setTimeout(() => {
+                    pendingDeleteTaskId = null;
+                    renderQuests();
+                }, 3000);
             }
-
-            // تحديث بانر العقاب النشط في قسم المهام
-            const activeBanner = document.getElementById('activePunishmentQuestBanner');
-            if (window.appState.activePunishmentText) {
-                activeBanner.classList.remove('hidden');
-                document.getElementById('activePunishmentBannerText').textContent = window.appState.activePunishmentText;
-                const shieldBtn = document.getElementById('bannerUseShieldBtn');
-                if (window.appState.exemptionCards > 0) {
-                    shieldBtn.classList.remove('hidden');
-                } else {
-                    shieldBtn.classList.add('hidden');
-                }
-            } else {
-                activeBanner.classList.add('hidden');
-            }
-
-            const level = Math.floor(window.appState.totalPoints / 100);
-            const xpInLevel = window.appState.totalPoints % 100;
-            const sDate = new Date(window.appState.challengeStartDate);
-            const tDate = new Date(getTodayDateString());
-            const challengeDay = Math.max(1, Math.round((tDate - sDate) / 86400000) + 1);
-
-            document.getElementById('challengeDayCounter').textContent = `اليوم ${challengeDay}`;
-            document.getElementById('playerNameDisplay').textContent = window.appState.playerName || 'اضغط لتعيين اسمك';
-            document.getElementById('playerAvatarContainer').innerHTML = AVATAR_SVGS[window.appState.avatarKey] || AVATAR_SVGS.skeleton;
-            document.getElementById('playerLevelDisplay').textContent = level;
-            document.getElementById('todayPointsDisplay').textContent = `+${window.appState.todayPoints}`;
-            document.getElementById('totalPointsDisplay').textContent = window.appState.totalPoints;
-
-            // تحديث خانة الألقاب (كل 5 مستويات)
-            const rankInfo = getRankInfo(level);
-            document.getElementById('playerRankTitleBadge').textContent = rankInfo.current.title;
-            document.getElementById('nextRankHintText').textContent = rankInfo.next
-                ? `الترقية القادمة: LVL ${rankInfo.next.minLvl}`
-                : 'أعلى رتبة في النظام';
-
-            // شريط المستوى
-            document.getElementById('xpProgressBar').style.width = `${xpInLevel}%`;
-            document.getElementById('xpProgressText').textContent = `${xpInLevel} / 100 نقطة للمستوى ${level + 1}`;
-
-            // شريط تخطي العقاب اليومي (100 نقطة)
-            const todayPts = window.appState.todayPoints;
-            const remainingPenaltyPts = Math.max(0, 100 - todayPts);
-            const penaltyPct = Math.min(100, todayPts);
-            const penaltyBox = document.getElementById('dailyPenaltyAvoidanceBox');
-            const penaltyBar = document.getElementById('dailyPenaltyProgressBar');
-            const penaltyText = document.getElementById('dailyPenaltyProgressText');
-
-            penaltyBar.style.width = `${penaltyPct}%`;
-            if (remainingPenaltyPts > 0) {
-                penaltyBox.className = 'w-full bg-slate-950 h-7 rounded-xl p-1 border border-rose-500/60 relative overflow-hidden transition-colors';
-                penaltyBar.className = 'penalty-bar-warn h-full rounded-lg';
-                penaltyText.textContent = `لتخطي العقاب: متبقي ${remainingPenaltyPts} ط (${todayPts}/100)`;
-            } else {
-                penaltyBox.className = 'w-full bg-slate-950 h-7 rounded-xl p-1 border border-emerald-400/70 relative overflow-hidden transition-colors';
-                penaltyBar.className = 'penalty-bar-safe h-full rounded-lg';
-                penaltyText.textContent = `منطقة الأمان! تخطيت العقاب (${todayPts}/100)`;
-            }
-
-            document.getElementById('exemptionCardsCount').textContent = window.appState.exemptionCards;
-            document.getElementById('doubleMultiplierBanner').className = window.appState.doublePointsActiveToday ? 'inline-flex items-center gap-1.5 text-[11px] font-black px-2.5 py-1 rounded-lg bg-amber-950/90 border border-amber-400 text-amber-300 animate-pulse' : 'hidden';
-
-            // مؤشرات التبويبات
-            document.getElementById('fortuneTabIndicator').className = window.appState.fortuneSpunToday
-                ? 'w-2.5 h-2.5 rounded-full bg-slate-600'
-                : 'w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse';
-            document.getElementById('punishmentTabIndicator').className = window.appState.activePunishmentText
-                ? 'w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping'
-                : 'w-2.5 h-2.5 rounded-full bg-purple-400';
-
-            renderQuests();
-            renderWheelsUI();
-            renderPunishmentList();
-        };
-
-        function renderQuests() {
-            const repBox = document.getElementById('repeatableTasksContainer');
-            const oneBox = document.getElementById('onetimeTasksContainer');
-            repBox.innerHTML = ''; oneBox.innerHTML = '';
-            
-            let rCount = 0, oTotal = 0, oDone = 0;
-
-            const iconEdit = `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
-            const iconDelete = `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
-
-            window.appState.tasks.forEach(t => {
-                const isDouble = window.appState.doublePointsActiveToday;
-                const effPts = isDouble ? t.points * 2 : t.points;
-                
-                if (t.type === 'repeatable') {
-                    rCount++;
-                    repBox.innerHTML += `
-                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 flex flex-col gap-2 relative group">
-                        <div class="flex justify-between items-start gap-2">
-                            <h4 class="text-sm font-black text-white quest-full-text flex-1">${t.title}</h4>
-                            <div class="flex gap-1 shrink-0 opacity-80">
-                                <button onclick="openQuestModal('${t.id}')" class="p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-400 hover:text-cyan-400 hover:border-cyan-400 transition" title="تعديل">${iconEdit}</button>
-                                <button onclick="deleteTask('${t.id}')" class="p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-400 hover:text-rose-400 hover:border-rose-400 transition" title="حذف">${iconDelete}</button>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-end mt-1">
-                            <div class="text-[11px] font-bold"><span class="text-cyan-400">+${effPts} نقطة ${isDouble?'(X2)':''}</span> <span class="text-slate-500 mx-1">|</span> <span class="text-slate-400">مرات الإنجاز: ${t.todayCount}</span></div>
-                            <button onclick="completeTask('${t.id}')" class="px-4 py-2 rounded-xl btn-hud-cyan text-white text-xs font-black shrink-0">إنجاز</button>
-                        </div>
-                    </div>`;
-                } else {
-                    oTotal++;
-                    if (t.completedToday) oDone++;
-                    const doneCls = t.completedToday ? 'bg-emerald-950/20 border-emerald-500/30' : 'bg-slate-950 border-slate-800';
-                    const textCls = t.completedToday ? 'text-emerald-300' : 'text-white';
-                    const btnCls = t.completedToday ? 'bg-slate-800 border-slate-700 text-slate-500 cursor-not-allowed' : 'btn-hud-purple text-white';
-                    
-                    oneBox.innerHTML += `
-                    <div class="${doneCls} border rounded-xl p-3.5 flex flex-col gap-2 relative group">
-                        <div class="flex justify-between items-start gap-2">
-                            <h4 class="text-sm font-black ${textCls} quest-full-text flex-1">${t.title}</h4>
-                            <div class="flex gap-1 shrink-0 opacity-80">
-                                <button onclick="openQuestModal('${t.id}')" class="p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-400 hover:text-purple-400 hover:border-purple-400 transition" title="تعديل">${iconEdit}</button>
-                                <button onclick="deleteTask('${t.id}')" class="p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-400 hover:text-rose-400 hover:border-rose-400 transition" title="حذف">${iconDelete}</button>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-end mt-1">
-                            <div class="text-[11px] font-bold"><span class="${t.completedToday?'text-emerald-500':'text-purple-400'}">+${effPts} نقطة ${isDouble?'(X2)':''}</span></div>
-                            <button onclick="completeTask('${t.id}')" ${t.completedToday?'disabled':''} class="px-4 py-2 rounded-xl ${btnCls} text-xs font-black shrink-0">${t.completedToday?'مكتملة':'إنجاز'}</button>
-                        </div>
-                    </div>`;
-                }
-            });
-            document.getElementById('repeatableTasksCountBadge').textContent = `${rCount} مهام`;
-            document.getElementById('onetimeTasksCountBadge').textContent = `${oDone}/${oTotal} مكتملة`;
         }
 
         function completeTask(id) {
+            checkDayRollover();
             const t = window.appState.tasks.find(x => x.id === id);
             if (!t) return;
             if (t.type === 'onetime' && t.completedToday) return;
-            
+
             const prevLvl = Math.floor(window.appState.totalPoints / 100);
             const pts = window.appState.doublePointsActiveToday ? t.points * 2 : t.points;
-            
+
             window.appState.totalPoints += pts;
             window.appState.todayPoints += pts;
             t.todayCount++;
             if (t.type === 'onetime') t.completedToday = true;
-            
+
+            const newlyCommitted = recordPoints(t.title, pts);
             saveState();
             renderAll();
-            
+
             const newLvl = Math.floor(window.appState.totalPoints / 100);
             if (newLvl > prevLvl) {
                 openLevelUpModal(newLvl);
             } else {
                 playTaskComplete();
-                showToast(`تم إنجاز "${t.title}" (+${pts} نقطة)`);
+                showToast(newlyCommitted
+                    ? `أحسنت! أكملت 100 نقطة اليوم وتم احتساب يوم التزام جديد (+${pts} نقطة)`
+                    : `تم إنجاز "${t.title}" (+${pts} نقطة)`);
+            }
+        }
+
+        function openTasbeehModal(id) {
+            const task = window.appState.tasks.find(x => x.id === id && x.kind === 'tasbeeh');
+            if (!task) return;
+            activeTasbeehTaskId = id;
+            document.getElementById('tasbeehModal').classList.remove('hidden');
+            document.getElementById('tasbeehModal').classList.add('flex');
+            renderTasbeehModal();
+        }
+
+        function closeTasbeehModal() {
+            document.getElementById('tasbeehModal').classList.add('hidden');
+            document.getElementById('tasbeehModal').classList.remove('flex');
+            activeTasbeehTaskId = null;
+        }
+
+        function renderTasbeehModal() {
+            if (!activeTasbeehTaskId) return;
+            const task = window.appState.tasks.find(x => x.id === activeTasbeehTaskId && x.kind === 'tasbeeh');
+            if (!task) return closeTasbeehModal();
+            const count = Math.min(task.targetCount, task.tasbeehProgress || 0);
+            const done = task.type === 'onetime' && task.completedToday;
+            document.getElementById('tasbeehModalTask').textContent = task.title;
+            document.getElementById('tasbeehModalCount').textContent = count;
+            document.getElementById('tasbeehModalTarget').textContent = `من ${task.targetCount}`;
+            document.getElementById('tasbeehRingProgress').style.strokeDashoffset = String(553 - (553 * count / task.targetCount));
+            document.getElementById('tasbeehBeadButton').disabled = done;
+            document.getElementById('tasbeehBeadButton').classList.toggle('opacity-40', done);
+            document.getElementById('tasbeehModalHint').textContent = done
+                ? 'اكتملت مهمة المرة الواحدة اليوم وتتجدد الساعة 12:00 ص'
+                : 'كل ضغطة تسجل تسبيحة واحدة';
+        }
+
+        function tapTasbeehBead() {
+            incrementActiveTasbeeh(1);
+        }
+
+        function incrementActiveTasbeeh(amount) {
+            if (activeTasbeehTaskId) incrementTasbeeh(activeTasbeehTaskId, amount);
+        }
+
+        function incrementTasbeeh(id, amount = 1) {
+            checkDayRollover();
+            const task = window.appState.tasks.find(x => x.id === id && x.kind === 'tasbeeh');
+            if (!task || (task.type === 'onetime' && task.completedToday)) return;
+
+            const before = task.tasbeehProgress || 0;
+            task.tasbeehProgress = Math.max(0, Math.min(task.targetCount, before + amount));
+
+            if (task.tasbeehProgress >= task.targetCount) {
+                task.todayCount = (task.todayCount || 0) + 1;
+                const pts = window.appState.doublePointsActiveToday ? task.points * 2 : task.points;
+                const prevLvl = Math.floor(window.appState.totalPoints / 100);
+
+                window.appState.totalPoints += pts;
+                window.appState.todayPoints += pts;
+                const newlyCommitted = recordPoints(task.title, pts);
+
+                if (task.type === 'onetime') {
+                    task.completedToday = true;
+                } else {
+                    task.tasbeehProgress = 0;
+                }
+
+                saveState();
+                renderAll();
+                if (activeTasbeehTaskId === id) renderTasbeehModal();
+                playTaskComplete();
+
+                const newLvl = Math.floor(window.appState.totalPoints / 100);
+                if (newLvl > prevLvl) {
+                    openLevelUpModal(newLvl);
+                } else {
+                    showToast(newlyCommitted
+                        ? `اكتمل العداد وحصلت على ${pts} نقطة — تم احتساب يوم التزام جديد!`
+                        : `اكتمل العداد! حصلت على ${pts} نقطة${task.type === 'repeatable' ? ' — بدأ العداد من جديد' : ''}`);
+                }
+            } else {
+                saveState();
+                renderAll();
+                if (activeTasbeehTaskId === id) renderTasbeehModal();
+                showToast(`تم تسجيل ${task.tasbeehProgress} من ${task.targetCount}`);
             }
         }
 
         /* ==========================================================================
-           5. نظام العجلات (الحظ، العقابات، والعقاب الإجباري) مع صوت التكات
+           7. محرك العجلات (الحظ، العقابات، والعقاب الإجباري)
            ========================================================================== */
         function drawCanvasVectorIcon(ctx, shape, x, y, color) {
-            ctx.save(); ctx.translate(x, y); ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 2.2; ctx.beginPath();
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.strokeStyle = color;
+            ctx.fillStyle = color;
+            ctx.lineWidth = 2.2;
+            ctx.beginPath();
             if (shape === 'gift' || shape === 'star') {
-                for (let i = 0; i < 5; i++) { ctx.lineTo(Math.cos((18+i*72)*Math.PI/180)*9, -Math.sin((18+i*72)*Math.PI/180)*9); ctx.lineTo(Math.cos((54+i*72)*Math.PI/180)*4, -Math.sin((54+i*72)*Math.PI/180)*4); }
-                ctx.closePath(); ctx.stroke();
-            } else if (shape === 'bolt') { ctx.moveTo(2, -9); ctx.lineTo(-6, 1); ctx.lineTo(0, 1); ctx.lineTo(-2, 9); ctx.lineTo(6, -1); ctx.lineTo(0, -1); ctx.closePath(); ctx.stroke();
-            } else if (shape === 'shield') { ctx.moveTo(0, -9); ctx.lineTo(7, -6); ctx.lineTo(7, 1); ctx.quadraticCurveTo(0, 8, 0, 9); ctx.quadraticCurveTo(0, 8, -7, 1); ctx.lineTo(-7, -6); ctx.closePath(); ctx.stroke();
-            } else if (shape === 'target' || shape === 'beads') { ctx.arc(0, 0, 7, 0, Math.PI * 2); ctx.stroke(); ctx.beginPath(); ctx.arc(0, 0, 2.5, 0, Math.PI * 2); ctx.fill();
-            } else { ctx.moveTo(0, -8); ctx.lineTo(8, 0); ctx.lineTo(0, 8); ctx.lineTo(-8, 0); ctx.closePath(); ctx.stroke(); }
+                for (let i = 0; i < 5; i++) {
+                    ctx.lineTo(Math.cos((18 + i * 72) * Math.PI / 180) * 9, -Math.sin((18 + i * 72) * Math.PI / 180) * 9);
+                    ctx.lineTo(Math.cos((54 + i * 72) * Math.PI / 180) * 4, -Math.sin((54 + i * 72) * Math.PI / 180) * 4);
+                }
+                ctx.closePath();
+                ctx.stroke();
+            } else if (shape === 'bolt') {
+                ctx.moveTo(2, -9); ctx.lineTo(-6, 1); ctx.lineTo(0, 1); ctx.lineTo(-2, 9); ctx.lineTo(6, -1); ctx.lineTo(0, -1);
+                ctx.closePath();
+                ctx.stroke();
+            } else if (shape === 'shield') {
+                ctx.moveTo(0, -9); ctx.lineTo(7, -6); ctx.lineTo(7, 1);
+                ctx.quadraticCurveTo(0, 8, 0, 9); ctx.quadraticCurveTo(0, 8, -7, 1); ctx.lineTo(-7, -6);
+                ctx.closePath();
+                ctx.stroke();
+            } else if (shape === 'target' || shape === 'beads') {
+                ctx.arc(0, 0, 7, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(0, 0, 2.5, 0, Math.PI * 2);
+                ctx.fill();
+            } else {
+                ctx.moveTo(0, -8); ctx.lineTo(8, 0); ctx.lineTo(0, 8); ctx.lineTo(-8, 0);
+                ctx.closePath();
+                ctx.stroke();
+            }
             ctx.restore();
         }
 
-        function drawWheel(type, canvasId, itemsArray, angle, primaryColor, palettes) {
+        function drawWheel(canvasId, itemsArray, angle, primaryColor, palettes) {
             const canvas = document.getElementById(canvasId);
-            if (!canvas || itemsArray.length === 0) return;
+            if (!canvas || !Array.isArray(itemsArray) || itemsArray.length === 0) return;
             const ctx = canvas.getContext('2d');
-            const w = canvas.width, h = canvas.height, cx = w/2, cy = h/2, r = (w/2)-14, arc = (Math.PI*2)/itemsArray.length;
-            ctx.clearRect(0,0,w,h);
-            
+            if (!ctx) return;
+
+            const w = canvas.width, h = canvas.height;
+            const cx = w / 2, cy = h / 2, r = (w / 2) - 14;
+            const arc = (Math.PI * 2) / itemsArray.length;
+            ctx.clearRect(0, 0, w, h);
+
             for (let i = 0; i < itemsArray.length; i++) {
-                ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx, cy, r, angle + i*arc, angle + (i+1)*arc); ctx.closePath();
-                ctx.fillStyle = palettes[i % palettes.length]; ctx.fill();
-                ctx.lineWidth = 2; ctx.strokeStyle = primaryColor; ctx.stroke();
-                
-                ctx.save(); ctx.translate(cx, cy); ctx.rotate(angle + i*arc + arc/2);
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.arc(cx, cy, r, angle + i * arc, angle + (i + 1) * arc);
+                ctx.closePath();
+                ctx.fillStyle = palettes[i % palettes.length];
+                ctx.fill();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = primaryColor;
+                ctx.stroke();
+
+                ctx.save();
+                ctx.translate(cx, cy);
+                ctx.rotate(angle + i * arc + arc / 2);
                 drawCanvasVectorIcon(ctx, itemsArray[i].shape || 'circle', r - 28, 0, primaryColor);
-                ctx.textAlign = 'right'; ctx.textBaseline = 'middle'; ctx.font = '800 16px Cairo, sans-serif'; ctx.fillStyle = '#ffffff';
-                ctx.fillText(itemsArray[i].label.slice(0, 22), r - 48, 0);
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+                ctx.font = '800 16px Cairo, sans-serif';
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText(String(itemsArray[i].label || '').slice(0, 22), r - 48, 0);
                 ctx.restore();
             }
-            ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.lineWidth=6; ctx.strokeStyle=primaryColor; ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, Math.PI * 2);
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = primaryColor;
+            ctx.stroke();
+        }
+
+        function getSafePunishmentItems() {
+            if (Array.isArray(window.appState.punishmentItems) && window.appState.punishmentItems.length >= 2) {
+                return window.appState.punishmentItems;
+            }
+            return DEFAULT_PUNISHMENT_ITEMS;
         }
 
         function drawWheelCanvas(type) {
-            if (type === 'fortune') drawWheel('fortune', 'fortuneWheelCanvas', FORTUNE_WHEEL_ITEMS, wheelAngles.fortune, '#00f0ff', ['#09192f', '#0d2644', '#081d38']);
-            else drawWheel('punishment', 'punishmentWheelCanvas', window.appState.punishmentItems, wheelAngles.punishment, '#a855f7', ['#190b2e', '#261044', '#140826']);
+            if (type === 'fortune') {
+                drawWheel('fortuneWheelCanvas', FORTUNE_WHEEL_ITEMS, wheelAngles.fortune, '#00f0ff', ['#09192f', '#0d2644', '#081d38']);
+            } else {
+                drawWheel('punishmentWheelCanvas', getSafePunishmentItems(), wheelAngles.punishment, '#a855f7', ['#190b2e', '#261044', '#140826']);
+            }
         }
+
         function drawForcedPenaltyWheel() {
-            drawWheel('forced', 'forcedPenaltyWheelCanvas', window.appState.punishmentItems, wheelAngles.forced, '#f43f5e', ['#2a0a18', '#3d0f21', '#1f0712']);
+            drawWheel('forcedPenaltyWheelCanvas', getSafePunishmentItems(), wheelAngles.forced, '#f43f5e', ['#2a0a18', '#3d0f21', '#1f0712']);
         }
 
         function getCurrentSliceAtTop(angle, totalSlices) {
@@ -1188,6 +1820,7 @@
         function spinWheelCore(type, items, onFinish) {
             if (wheelSpinning[type]) return;
             wheelSpinning[type] = true;
+
             const N = items.length;
             const winningIndex = Math.floor(Math.random() * N);
             const arc = (Math.PI * 2) / N;
@@ -1196,9 +1829,10 @@
             let delta = desiredFinalMod - ((startAngle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
             if (delta <= 0) delta += Math.PI * 2;
             const targetAngle = startAngle + (Math.floor(Math.random() * 3) + 5) * Math.PI * 2 + delta;
-            
+
             let lastSliceIdx = getCurrentSliceAtTop(startAngle, N);
-            const duration = 4000, start = performance.now();
+            const duration = 4000;
+            const start = performance.now();
 
             function animate(now) {
                 const prog = Math.min(1, (now - start) / duration);
@@ -1210,9 +1844,12 @@
                     lastSliceIdx = currentSliceIdx;
                 }
 
-                if (type === 'forced') drawForcedPenaltyWheel(); else drawWheelCanvas(type);
-                if (prog < 1) requestAnimationFrame(animate);
-                else {
+                if (type === 'forced') drawForcedPenaltyWheel();
+                else drawWheelCanvas(type);
+
+                if (prog < 1) {
+                    requestAnimationFrame(animate);
+                } else {
                     wheelSpinning[type] = false;
                     wheelAngles[type] = targetAngle;
                     onFinish(items[winningIndex]);
@@ -1222,30 +1859,44 @@
         }
 
         function spinWheel(type) {
+            checkDayRollover();
+            if (wheelSpinning[type]) return;
             if (type === 'fortune' && window.appState.fortuneSpunToday) return showToast('استخدمت عجلة الحظ اليوم.');
             if (type === 'punishment' && window.appState.punishmentSpunToday) return showToast('استخدمت عجلة العقابات اليوم.');
+
             const items = type === 'fortune' ? FORTUNE_WHEEL_ITEMS : window.appState.punishmentItems;
-            if(items.length < 2) return showToast('أضف خانات للعجلة أولاً');
-            
+            if (!Array.isArray(items) || items.length < 2) return showToast('لا يمكن أن تحتوي العجلة على أقل من عقابين');
+
+            const btnId = type === 'fortune' ? 'spinFortuneBtn' : 'spinPunishmentBtn';
+            const spinBtn = document.getElementById(btnId);
+            if (spinBtn) spinBtn.disabled = true;
+
             spinWheelCore(type, items, (winner) => {
                 if (type === 'fortune') {
                     const prevLvl = Math.floor(window.appState.totalPoints / 100);
                     window.appState.fortuneSpunToday = true;
                     window.appState.fortuneTodayResult = winner.label;
+
                     document.getElementById('wheelResultTitleText').textContent = winner.label;
                     const desc = document.getElementById('wheelResultDescText');
                     const cBox = document.getElementById('chooseYourselfBox');
-                    cBox.classList.add('hidden'); cBox.classList.remove('flex');
+                    cBox.classList.add('hidden');
+                    cBox.classList.remove('flex');
                     document.getElementById('wheelResultConfirmBtn').classList.remove('hidden');
-                    
+
                     if (winner.effect === 'add50') {
                         window.appState.totalPoints += 50;
                         window.appState.todayPoints += 50;
+                        recordPoints('مكافأة عجلة الحظ', 50);
                         desc.textContent = '+50 نقطة تمت إضافتها لرصيدك!';
                         playTaskComplete();
                     } else if (winner.effect === 'sub50') {
-                        window.appState.totalPoints = Math.max(0, window.appState.totalPoints - 50);
-                        desc.textContent = 'تم خصم 50 نقطة من رصيدك!';
+                        const deducted = Math.min(50, window.appState.totalPoints);
+                        window.appState.totalPoints -= deducted;
+                        recordPoints('خصم عجلة الحظ', -deducted);
+                        desc.textContent = deducted > 0
+                            ? `تم خصم ${deducted} نقطة من رصيدك!`
+                            : 'رصيدك 0 نقطة، لم يتم خصم أي نقاط.';
                         playPenaltyAlarm();
                     } else if (winner.effect === 'double') {
                         window.appState.doublePointsActiveToday = true;
@@ -1256,8 +1907,10 @@
                         desc.textContent = 'حصلت على بطاقة إعفاء من العقابات!';
                         playTaskComplete();
                     } else if (winner.effect === 'choose') {
+                        window.appState.pendingFortuneChoice = true;
                         desc.textContent = 'اختر مكافأتك بنفسك:';
-                        cBox.classList.remove('hidden'); cBox.classList.add('flex');
+                        cBox.classList.remove('hidden');
+                        cBox.classList.add('flex');
                         document.getElementById('wheelResultConfirmBtn').classList.add('hidden');
                         playTaskComplete();
                     } else {
@@ -1285,36 +1938,79 @@
             });
         }
 
-        // العقاب الإجباري (Forced Penalty Protocol)
+        function openPendingFortuneChoiceModal() {
+            if (!window.appState.pendingFortuneChoice || window.appState.needsForcedPenalty) return;
+            document.getElementById('wheelResultTitleText').textContent = 'اختار بنفسك';
+            document.getElementById('wheelResultDescText').textContent = 'اختر مكافأتك بنفسك:';
+            const cBox = document.getElementById('chooseYourselfBox');
+            cBox.classList.remove('hidden');
+            cBox.classList.add('flex');
+            document.getElementById('wheelResultConfirmBtn').classList.add('hidden');
+            document.getElementById('wheelResultModal').classList.remove('hidden');
+            document.getElementById('wheelResultModal').classList.add('flex');
+        }
+
+        function applyManualChoiceReward(choice) {
+            const prevLvl = Math.floor(window.appState.totalPoints / 100);
+            window.appState.pendingFortuneChoice = false;
+
+            if (choice === 'add50') {
+                window.appState.totalPoints += 50;
+                window.appState.todayPoints += 50;
+                recordPoints('مكافأة اختيارية من عجلة الحظ', 50);
+            } else if (choice === 'doubleXP') {
+                window.appState.doublePointsActiveToday = true;
+            } else if (choice === 'shield') {
+                window.appState.exemptionCards++;
+            }
+
+            playTaskComplete();
+            saveState();
+            renderAll();
+            closeWheelResultModal(true);
+            showToast('تم تفعيل المكافأة!');
+
+            const newLvl = Math.floor(window.appState.totalPoints / 100);
+            if (newLvl > prevLvl) openLevelUpModal(newLvl);
+        }
+
         function spinForcedPenaltyWheel() {
-            spinWheelCore('forced', window.appState.punishmentItems, (winner) => {
+            if (wheelSpinning.forced) return;
+            const items = getSafePunishmentItems();
+            const spinBtn = document.getElementById('forcedPenaltySpinBtn');
+            if (spinBtn) spinBtn.disabled = true;
+
+            spinWheelCore('forced', items, (winner) => {
                 playPenaltyAlarm();
                 window.appState.forcedPenaltyText = winner.label;
+                if (spinBtn) spinBtn.disabled = false;
                 saveState();
                 renderAll();
             });
         }
+
         function completeForcedPenalty() {
+            if (wheelSpinning.forced) return;
             playTaskComplete();
             window.appState.needsForcedPenalty = false;
             window.appState.forcedPenaltyText = '';
             saveState();
             renderAll();
+            openPendingFortuneChoiceModal();
             showToast('تم رفع الحظر! انطلق الآن واجمع النقاط!');
         }
 
-        function applyManualChoiceReward(c) {
-            const prevLvl = Math.floor(window.appState.totalPoints / 100);
-            if(c === 'add50') { window.appState.totalPoints += 50; window.appState.todayPoints += 50; }
-            else if(c === 'doubleXP') window.appState.doublePointsActiveToday = true;
-            else if(c === 'shield') window.appState.exemptionCards++;
+        function useExemptionCardOnForcedPenalty() {
+            if (wheelSpinning.forced) return;
+            if (window.appState.exemptionCards <= 0) return showToast('لا تملك بطاقات إعفاء!');
             playTaskComplete();
+            window.appState.exemptionCards--;
+            window.appState.needsForcedPenalty = false;
+            window.appState.forcedPenaltyText = '';
             saveState();
             renderAll();
-            closeWheelResultModal();
-            showToast('تم تفعيل المكافأة!');
-            const newLvl = Math.floor(window.appState.totalPoints / 100);
-            if (newLvl > prevLvl) openLevelUpModal(newLvl);
+            openPendingFortuneChoiceModal();
+            showToast('تم استخدام بطاقة الإعفاء ورفع العقاب الإجباري!');
         }
 
         function completeActivePunishment() {
@@ -1326,7 +2022,7 @@
         }
 
         function useExemptionCardOnPunishment() {
-            if(window.appState.exemptionCards > 0) {
+            if (window.appState.exemptionCards > 0) {
                 playTaskComplete();
                 window.appState.exemptionCards--;
                 window.appState.activePunishmentText = '';
@@ -1338,107 +2034,266 @@
             }
         }
 
-        function renderWheelsUI() {
-            if (window.appState.fortuneSpunToday) {
-                document.getElementById('fortuneStatusBadge').textContent = 'مغلقة (0/1)';
-                document.getElementById('spinFortuneBtn').disabled = true;
-                document.getElementById('fortuneResultTodayBox').classList.remove('hidden');
-                document.getElementById('fortuneResultTodayText').textContent = window.appState.fortuneTodayResult;
-            } else {
-                document.getElementById('fortuneStatusBadge').textContent = 'متاحة (1/1)';
-                document.getElementById('spinFortuneBtn').disabled = false;
-                document.getElementById('fortuneResultTodayBox').classList.add('hidden');
-            }
+        function addPunishmentSlice() {
+            const input = document.getElementById('newPunishmentInput');
+            const val = input.value.trim();
+            if (!val) return showToast('يرجى كتابة العقاب أولاً');
+            if (window.appState.punishmentItems.length >= 24) return showToast('الحد الأقصى 24 خانة للعجلة');
 
-            if (window.appState.punishmentSpunToday) {
-                document.getElementById('punishmentStatusBadge').textContent = 'مغلقة (0/1)';
-                document.getElementById('spinPunishmentBtn').disabled = true;
-                document.getElementById('punishmentResultTodayBox').classList.remove('hidden');
-                document.getElementById('punishmentResultTodayText').textContent = window.appState.punishmentTodayResult;
-                if(window.appState.activePunishmentText) {
-                    document.getElementById('completePunishmentInlineBtn').classList.remove('hidden');
-                    document.getElementById('useShieldInlineBtn').className = window.appState.exemptionCards > 0 ? 'px-3.5 py-2 rounded-lg btn-hud-purple text-white font-black text-xs' : 'hidden';
-                } else {
-                    document.getElementById('completePunishmentInlineBtn').classList.add('hidden');
-                    document.getElementById('useShieldInlineBtn').classList.add('hidden');
-                }
-            } else {
-                document.getElementById('punishmentStatusBadge').textContent = 'متاحة (1/1)';
-                document.getElementById('spinPunishmentBtn').disabled = false;
-                document.getElementById('punishmentResultTodayBox').classList.add('hidden');
+            window.appState.punishmentItems.push({
+                id: 'p' + Date.now() + '_' + Math.random().toString(36).slice(2, 5),
+                label: val.slice(0, 100),
+                shape: 'bolt'
+            });
+            input.value = '';
+            saveState();
+            renderAll();
+            drawWheelCanvas('punishment');
+            showToast('تمت الإضافة');
+        }
+
+        function updatePunishmentSlice(index, value) {
+            const item = window.appState.punishmentItems[index];
+            if (!item) return;
+            const cleaned = String(value || '').trim().slice(0, 100);
+            if (!cleaned) {
+                showToast('لا يمكن ترك خانة العقاب فارغة');
+                renderPunishmentList();
+                return;
             }
+            item.label = cleaned;
+            saveState();
+            drawWheelCanvas('punishment');
+        }
+
+        function deletePunishmentSlice(index) {
+            if (window.appState.punishmentItems.length <= 2) {
+                return showToast('لا يمكن أن تحتوي العجلة على أقل من عقابين');
+            }
+            if (index < 0 || index >= window.appState.punishmentItems.length) return;
+            window.appState.punishmentItems.splice(index, 1);
+            saveState();
+            renderAll();
+            drawWheelCanvas('punishment');
+            showToast('تم حذف الخانة');
+        }
+
+        function restoreDefaultPunishments() {
+            window.appState.punishmentItems = cloneDefaults(DEFAULT_PUNISHMENT_ITEMS);
+            saveState();
+            renderAll();
+            drawWheelCanvas('punishment');
+            showToast('تمت استعادة العقابات الستة الافتراضية');
         }
 
         /* ==========================================================================
-           6. إدارة العقابات والملف الشخصي والبيانات
+           8. السجل الدائم لكل الأيام منذ البداية (Progress Modal) + النوافذ المنبثقة
            ========================================================================== */
-        function addPunishmentSlice() {
-            const val = document.getElementById('newPunishmentInput').value.trim();
-            if(val) {
-                window.appState.punishmentItems.push({id: 'p'+Date.now(), label: val, shape: 'bolt'});
-                document.getElementById('newPunishmentInput').value = '';
-                saveState();
-                renderAll();
-                drawWheelCanvas('punishment');
-                showToast('تمت الإضافة');
-            }
+        function openRulesModal() {
+            document.getElementById('rulesModal').classList.remove('hidden');
+            document.getElementById('rulesModal').classList.add('flex');
         }
-        function renderPunishmentList() {
-            const list = document.getElementById('punishmentEditorList'); list.innerHTML = '';
-            window.appState.punishmentItems.forEach((item, i) => {
-                list.innerHTML += `<div class="bg-slate-950 p-2 rounded-lg flex gap-2"><input class="flex-1 bg-transparent text-sm text-white outline-none" value="${item.label}" onchange="window.appState.punishmentItems[${i}].label=this.value; saveState(); drawWheelCanvas('punishment');"><button onclick="window.appState.punishmentItems.splice(${i},1); saveState(); renderAll(); drawWheelCanvas('punishment');" class="text-rose-400 text-xs font-bold">حذف</button></div>`;
+        function closeRulesModal() {
+            document.getElementById('rulesModal').classList.add('hidden');
+            document.getElementById('rulesModal').classList.remove('flex');
+        }
+
+        function openProgressModal() {
+            progressVisibleLimit = HISTORY_PAGE_SIZE;
+            renderProgressHistory();
+            document.getElementById('progressModal').classList.remove('hidden');
+            document.getElementById('progressModal').classList.add('flex');
+        }
+        function closeProgressModal() {
+            document.getElementById('progressModal').classList.add('hidden');
+            document.getElementById('progressModal').classList.remove('flex');
+        }
+
+        function renderProgressHistory() {
+            const host = document.getElementById('progressHistoryContent');
+            if (!host) return;
+
+            const todayKey = getTodayDateString();
+            ensureDayRecord(todayKey);
+
+            const knownKeys = [
+                window.appState.firstVisitDate,
+                window.appState.challengeStartDate,
+                todayKey,
+                ...Object.keys(window.appState.dailyHistory || {}),
+                ...(window.appState.committedDates || [])
+            ].filter(isValidDateKey).sort();
+
+            const firstDate = knownKeys[0] || todayKey;
+            const totalSpanDays = Math.max(1, daysBetweenKeys(firstDate, todayKey) + 1);
+
+            const allDays = [];
+            let activeDaysCount = 0;
+
+            for (let offset = totalSpanDays - 1; offset >= 0; offset--) {
+                const dk = addDaysToKey(firstDate, offset);
+                const rec = (window.appState.dailyHistory && window.appState.dailyHistory[dk]) || createEmptyDayHistoryRecord();
+                const isToday = dk === todayKey;
+                const earned = isToday ? Math.max(rec.totalPointsEarned, window.appState.todayPoints) : rec.totalPointsEarned;
+                const committed = rec.committed || window.appState.committedDates.includes(dk) || earned >= DAILY_COMMITMENT_TARGET;
+                const entries = Array.isArray(rec.entries) ? rec.entries : [];
+                const hasActivity = entries.length > 0;
+                if (hasActivity) activeDaysCount++;
+
+                allDays.push({ date: dk, entries, isToday, earned, committed, hasActivity });
+            }
+
+            const filteredDays = allDays.filter(item => {
+                if (progressFilter === 'committed') return item.committed;
+                if (progressFilter === 'active') return item.hasActivity;
+                return true;
             });
+
+            const visibleDays = filteredDays.slice(0, progressVisibleLimit);
+            const remainingCount = Math.max(0, filteredDays.length - visibleDays.length);
+            const checkSvg = `<svg class="w-3 h-3 inline-block ml-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+
+            const parts = [];
+
+            // شريط الملخص العلوي
+            parts.push(`
+                <div class="grid grid-cols-3 gap-2 text-center">
+                    <div class="bg-slate-950/90 border border-emerald-500/35 rounded-xl p-2.5">
+                        <span class="block text-[10px] font-bold text-emerald-300">أيام الالتزام</span>
+                        <strong class="text-xs sm:text-sm font-black text-emerald-300">${escapeHTML(formatArabicDayCount(window.appState.committedDates.length))}</strong>
+                    </div>
+                    <div class="bg-slate-950/90 border border-cyan-500/35 rounded-xl p-2.5">
+                        <span class="block text-[10px] font-bold text-cyan-300">إجمالي الأيام منذ البداية</span>
+                        <strong class="text-xs sm:text-sm font-black text-white">${escapeHTML(formatArabicDayCount(totalSpanDays))}</strong>
+                    </div>
+                    <div class="bg-slate-950/90 border border-purple-500/35 rounded-xl p-2.5">
+                        <span class="block text-[10px] font-bold text-purple-300">أيام بها نشاط</span>
+                        <strong class="text-xs sm:text-sm font-black text-purple-200">${escapeHTML(formatArabicDayCount(activeDaysCount))}</strong>
+                    </div>
+                </div>
+            `);
+
+            const filterBtnClass = (key) => progressFilter === key
+                ? 'px-2.5 py-1.5 rounded-lg text-[11px] font-black btn-hud-purple text-white'
+                : 'px-2.5 py-1.5 rounded-lg text-[11px] font-black bg-slate-950 border border-slate-700 text-slate-400 hover:border-purple-400';
+
+            parts.push(`
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        <button type="button" data-action="filter-progress" data-filter="all" class="${filterBtnClass('all')}">كل الأيام (${allDays.length})</button>
+                        <button type="button" data-action="filter-progress" data-filter="committed" class="${filterBtnClass('committed')}">أيام الالتزام (${window.appState.committedDates.length})</button>
+                        <button type="button" data-action="filter-progress" data-filter="active" class="${filterBtnClass('active')}">أيام بها نشاط (${activeDaysCount})</button>
+                    </div>
+                    <button type="button" data-action="toggle-expand-progress" class="px-2.5 py-1.5 rounded-lg text-[11px] font-black bg-slate-950 border border-cyan-500/40 text-cyan-300 hover:border-cyan-300 transition">
+                        ${progressExpandAll ? 'طي الكل' : 'توسيع الكل'}
+                    </button>
+                </div>
+            `);
+
+            if (visibleDays.length === 0) {
+                parts.push('<p class="text-sm text-slate-400 text-center py-6">لا توجد أيام مطابقة لهذا الفلتر بعد.</p>');
+            } else {
+                visibleDays.forEach(item => {
+                    const isOpen = progressExpandAll || item.isToday;
+                    let statusBadge = '';
+                    let borderClass = 'border-slate-800';
+
+                    if (item.committed) {
+                        statusBadge = `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-black bg-emerald-950/90 border border-emerald-500/50 text-emerald-300">${checkSvg}<span>ملتزم 100+</span></span>`;
+                        borderClass = 'border-emerald-500/35';
+                    } else if (item.hasActivity || item.earned > 0) {
+                        statusBadge = '<span class="px-2 py-0.5 rounded-md text-[10px] font-black bg-rose-950/80 border border-rose-500/40 text-rose-300">أقل من 100</span>';
+                        borderClass = 'border-rose-500/30';
+                    } else {
+                        statusBadge = '<span class="px-2 py-0.5 rounded-md text-[10px] font-black bg-slate-900 border border-slate-700 text-slate-400">لم يتم تسجيل نشاط</span>';
+                    }
+
+                    const todayTag = item.isToday
+                        ? '<span class="px-1.5 py-0.5 rounded bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 text-[10px] font-black">اليوم</span>'
+                        : '';
+
+                    const rowsHtml = item.entries.length > 0
+                        ? item.entries.map(e => `
+                            <div class="flex justify-between gap-3 text-xs py-2 border-b border-slate-800/80 last:border-b-0">
+                                <span class="text-slate-300 quest-full-text">
+                                    ${e.time ? `<span class="text-slate-400">${escapeHTML(e.time)}</span> · ` : ''}${escapeHTML(e.label)}
+                                    <small class="block text-slate-500">المستوى بعد العملية: ${Math.floor(Math.max(0, Number(e.totalAfter) || 0) / 100)}</small>
+                                </span>
+                                <strong class="shrink-0 font-tech ${e.points >= 0 ? 'text-emerald-300' : 'text-rose-300'}" dir="ltr">${e.points > 0 ? '+' : ''}${e.points}</strong>
+                            </div>
+                        `).join('')
+                        : '<p class="text-xs text-slate-500 py-2 text-center">لم يتم تسجيل نشاط في هذا اليوم</p>';
+
+                    parts.push(`
+                        <details ${isOpen ? 'open' : ''} class="bg-slate-950/85 border ${borderClass} rounded-xl overflow-hidden">
+                            <summary class="cursor-pointer p-3 flex flex-wrap items-center justify-between gap-2 hover:bg-slate-900/60 transition">
+                                <div class="flex items-center gap-2">
+                                    <strong class="text-white text-xs sm:text-sm font-tech" dir="ltr">${escapeHTML(item.date)}</strong>
+                                    ${todayTag}
+                                    ${statusBadge}
+                                </div>
+                                <div class="text-xs font-black text-cyan-300">+${item.earned} نقطة</div>
+                            </summary>
+                            <div class="px-3 pb-3 pt-1 border-t border-slate-800/80">
+                                ${rowsHtml}
+                            </div>
+                        </details>
+                    `);
+                });
+
+                if (remainingCount > 0) {
+                    parts.push(`
+                        <button type="button" data-action="load-more-progress" class="w-full py-2.5 rounded-xl bg-slate-950 border border-purple-500/40 hover:border-cyan-400 text-purple-200 font-black text-xs transition">
+                            عرض المزيد (${remainingCount} يوم متبقي)
+                        </button>
+                    `);
+                }
+            }
+
+            host.innerHTML = parts.join('');
         }
 
         function openProfileModal() {
             document.getElementById('modalPlayerNameInput').value = window.appState.playerName;
             selectedModalAvatar = window.appState.avatarKey || 'skeleton';
-            const grid = document.getElementById('avatarPickerGrid'); grid.innerHTML = '';
-            Object.keys(AVATAR_SVGS).forEach(k => {
-                grid.innerHTML += `<button onclick="selectedModalAvatar='${k}'; document.querySelectorAll('#avatarPickerGrid button').forEach(b=>b.classList.remove('border-cyan-400')); this.classList.add('border-cyan-400');" class="aspect-square rounded-xl p-2 border-2 ${k===selectedModalAvatar?'border-cyan-400 bg-cyan-950/50':'border-slate-800 bg-slate-950'} hover:border-cyan-500 transition">${AVATAR_SVGS[k]}</button>`;
-            });
+            renderAvatarPicker();
             document.getElementById('profileModal').classList.remove('hidden');
             document.getElementById('profileModal').classList.add('flex');
         }
+
+        function closeProfileModal() {
+            document.getElementById('profileModal').classList.add('hidden');
+            document.getElementById('profileModal').classList.remove('flex');
+        }
+
+        function renderAvatarPicker() {
+            const grid = document.getElementById('avatarPickerGrid');
+            if (!grid) return;
+            grid.innerHTML = Object.keys(AVATAR_SVGS).map(k => {
+                const activeCls = k === selectedModalAvatar
+                    ? 'border-cyan-400 bg-cyan-950/50'
+                    : 'border-slate-800 bg-slate-950';
+                return `<button type="button" data-action="select-avatar" data-avatar="${escapeHTML(k)}" class="aspect-square rounded-xl p-2 border-2 ${activeCls} hover:border-cyan-500 transition">${AVATAR_SVGS[k]}</button>`;
+            }).join('');
+        }
+
         function saveProfileModal() {
-            window.appState.playerName = document.getElementById('modalPlayerNameInput').value.trim() || 'المستخدم';
+            window.appState.playerName = document.getElementById('modalPlayerNameInput').value.trim().slice(0, 32) || 'المستخدم';
             window.appState.avatarKey = selectedModalAvatar;
             saveState();
             renderAll();
-            document.getElementById('profileModal').classList.add('hidden');
-            document.getElementById('profileModal').classList.remove('flex');
+            closeProfileModal();
             showToast('تم حفظ الهوية');
         }
 
-        function downloadBackup() {
-            const dataStr = JSON.stringify(window.appState, null, 2);
-            const blob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href = url; a.download = `ZeroPlus_Backup.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a);
-            showToast('تم تحميل النسخة بنجاح');
-        }
-        function uploadBackup(e) {
-            const file = e.target.files[0]; if(!file) return;
-            const r = new FileReader();
-            r.onload = ev => {
-                try {
-                    const parsed = JSON.parse(ev.target.result);
-                    if(typeof parsed.totalPoints === 'number') {
-                        window.appState = {...window.appState, ...parsed};
-                        saveState();
-                        renderAll();
-                        playLevelUpFanfare();
-                        showToast('تمت استعادة البيانات بنجاح!');
-                    }
-                } catch(err){ showToast('ملف غير صالح!'); }
-            };
-            r.readAsText(file);
-        }
-
-        function closeWheelResultModal() {
+        function closeWheelResultModal(force = false) {
+            if (window.appState.pendingFortuneChoice && !force) {
+                showToast('يمكنك اختيار مكافأتك الآن أو لاحقاً من تبويب عجلة الحظ');
+            }
             document.getElementById('wheelResultModal').classList.add('hidden');
             document.getElementById('wheelResultModal').classList.remove('flex');
         }
+
         function openLevelUpModal(l) {
             playLevelUpFanfare();
             document.getElementById('newLevelModalNumber').textContent = l;
@@ -1452,37 +2307,454 @@
             document.getElementById('levelUpModal').classList.remove('hidden');
             document.getElementById('levelUpModal').classList.add('flex');
         }
+
         function closeLevelUpModal() {
             document.getElementById('levelUpModal').classList.add('hidden');
             document.getElementById('levelUpModal').classList.remove('flex');
         }
-        window.showToast = function(msg) {
-            const t = document.getElementById('systemToast');
-            document.getElementById('systemToastText').textContent = msg;
-            t.classList.remove('opacity-0','translate-y-4');
-            clearTimeout(window._toastTimer);
-            window._toastTimer = setTimeout(()=>t.classList.add('opacity-0','translate-y-4'), 3000);
-        };
-        function toggleSound() {
-            soundEnabled = !soundEnabled;
-            if (masterGain && audioCtx) {
-                masterGain.gain.setValueAtTime(soundEnabled ? 1.35 : 0, audioCtx.currentTime);
+
+        /* ==========================================================================
+           9. النسخ الاحتياطي والاستعادة
+           ========================================================================== */
+        function downloadBackup() {
+            try {
+                const dataStr = JSON.stringify(window.appState, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `ZeroPlus_Backup_${getTodayDateString()}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+                showToast('تم تحميل النسخة الاحتياطية بنجاح');
+            } catch (err) {
+                showToast('تعذر تحميل النسخة الاحتياطية');
             }
-            if (soundEnabled) playClick();
-            document.getElementById('soundSvgIcon').innerHTML = soundEnabled
-                ? `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>`
-                : `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line>`;
-            showToast(soundEnabled ? 'تم تفعيل الصوت' : 'تم كتم الصوت');
         }
 
-        // خلفية جزيئات خفيفة لتعزيز أجواء النظام
+        function uploadBackup(e) {
+            const input = e.target;
+            const file = input && input.files ? input.files[0] : null;
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = ev => {
+                try {
+                    const parsed = JSON.parse(ev.target.result);
+                    if (
+                        parsed && typeof parsed === 'object' && !Array.isArray(parsed) &&
+                        Number.isFinite(Number(parsed.totalPoints)) && Number(parsed.totalPoints) >= 0 &&
+                        Array.isArray(parsed.tasks) && Array.isArray(parsed.punishmentItems)
+                    ) {
+                        window.appState = sanitizeAndMigrateState(parsed);
+                        const todayKey = getTodayDateString();
+                        ensureDayRecord(todayKey);
+
+                        syncSoundIcon();
+                        saveState();
+                        renderAll();
+                        drawWheelCanvas('fortune');
+                        drawWheelCanvas('punishment');
+                        if (window.appState.needsForcedPenalty) {
+                            drawForcedPenaltyWheel();
+                        } else if (window.appState.pendingFortuneChoice) {
+                            openPendingFortuneChoiceModal();
+                        }
+                        updateMidnightCountdown();
+                        showToast('تمت استعادة البيانات بنجاح!');
+                    } else {
+                        showToast('ملف النسخة لا يطابق بنية Zero Plus');
+                    }
+                } catch (err) {
+                    showToast('ملف غير صالح!');
+                } finally {
+                    input.value = '';
+                }
+            };
+            reader.onerror = () => {
+                input.value = '';
+                showToast('تعذر قراءة الملف!');
+            };
+            reader.readAsText(file);
+        }
+
+        /* ==========================================================================
+           10. عرض واجهة المستخدم بالكامل + تفويض الأحداث الآمن (Event Delegation)
+           ========================================================================== */
+        window.renderAll = function() {
+            // 1. شاشة العقاب الإجباري
+            const overlay = document.getElementById('forcedPenaltyOverlay');
+            const forcedShieldBtn = document.getElementById('forcedPenaltyShieldBtn');
+            if (window.appState.needsForcedPenalty) {
+                overlay.classList.remove('hidden');
+                overlay.classList.add('flex');
+                if (window.appState.forcedPenaltyText) {
+                    document.getElementById('forcedPenaltySpinBtn').classList.add('hidden');
+                    document.getElementById('forcedPenaltyResultBox').classList.remove('hidden');
+                    document.getElementById('forcedPenaltyResultBox').classList.add('flex');
+                    document.getElementById('forcedPenaltyResultText').textContent = window.appState.forcedPenaltyText;
+                } else {
+                    document.getElementById('forcedPenaltySpinBtn').classList.remove('hidden');
+                    document.getElementById('forcedPenaltySpinBtn').disabled = wheelSpinning.forced;
+                    document.getElementById('forcedPenaltyResultBox').classList.add('hidden');
+                    document.getElementById('forcedPenaltyResultBox').classList.remove('flex');
+                }
+                if (window.appState.exemptionCards > 0) {
+                    forcedShieldBtn.classList.remove('hidden');
+                    forcedShieldBtn.textContent = `استخدام بطاقة إعفاء (متاح: ${window.appState.exemptionCards})`;
+                } else {
+                    forcedShieldBtn.classList.add('hidden');
+                }
+                requestAnimationFrame(() => drawForcedPenaltyWheel());
+            } else {
+                overlay.classList.add('hidden');
+                overlay.classList.remove('flex');
+            }
+
+            // 2. بانر العقاب النشط في قسم المهام
+            const activeBanner = document.getElementById('activePunishmentQuestBanner');
+            if (window.appState.activePunishmentText) {
+                activeBanner.classList.remove('hidden');
+                document.getElementById('activePunishmentBannerText').textContent = window.appState.activePunishmentText;
+                document.getElementById('bannerUseShieldBtn').classList.toggle('hidden', window.appState.exemptionCards <= 0);
+            } else {
+                activeBanner.classList.add('hidden');
+            }
+
+            // 3. بطاقة اللاعب والمستوى وأيام الالتزام
+            const level = Math.floor(window.appState.totalPoints / 100);
+            const xpInLevel = window.appState.totalPoints % 100;
+            const committedCount = Array.isArray(window.appState.committedDates) ? window.appState.committedDates.length : 0;
+
+            document.getElementById('challengeDayCounter').textContent = formatArabicDayCount(committedCount);
+            document.getElementById('playerNameDisplay').textContent = window.appState.playerName || 'اضغط لتعيين اسمك';
+            document.getElementById('playerAvatarContainer').innerHTML = AVATAR_SVGS[window.appState.avatarKey] || AVATAR_SVGS.skeleton;
+            document.getElementById('playerLevelDisplay').textContent = level;
+            document.getElementById('todayPointsDisplay').textContent = `+${window.appState.todayPoints}`;
+            document.getElementById('totalPointsDisplay').textContent = window.appState.totalPoints;
+
+            // تحديث خانة الألقاب (كل 5 مستويات)
+            const rankInfo = getRankInfo(level);
+            document.getElementById('playerRankTitleBadge').textContent = rankInfo.current.title;
+            document.getElementById('nextRankHintText').textContent = rankInfo.next
+                ? `الترقية القادمة: LVL ${rankInfo.next.minLvl}`
+                : 'أعلى رتبة في النظام';
+
+            // شريط المستوى
+            document.getElementById('xpProgressBar').style.width = `${xpInLevel}%`;
+            document.getElementById('xpProgressText').textContent = `${xpInLevel} / 100 نقطة للمستوى ${level + 1}`;
+
+            // شريط تخطي العقاب اليومي (100 نقطة يومياً) مع استخدام كلمة "نقطة"
+            const todayPts = window.appState.todayPoints;
+            const remainingPenaltyPts = Math.max(0, 100 - todayPts);
+            const penaltyPct = Math.min(100, todayPts);
+            const penaltyBox = document.getElementById('dailyPenaltyAvoidanceBox');
+            const penaltyBar = document.getElementById('dailyPenaltyProgressBar');
+            const penaltyText = document.getElementById('dailyPenaltyProgressText');
+
+            penaltyBar.style.width = `${penaltyPct}%`;
+            if (remainingPenaltyPts > 0) {
+                penaltyBox.className = 'w-full bg-slate-950 h-7 rounded-xl p-1 border border-rose-500/60 relative overflow-hidden transition-colors';
+                penaltyBar.className = 'penalty-bar-warn h-full rounded-lg';
+                penaltyText.textContent = `لتخطي العقاب: متبقي ${remainingPenaltyPts} نقطة (${todayPts}/100)`;
+            } else {
+                penaltyBox.className = 'w-full bg-slate-950 h-7 rounded-xl p-1 border border-emerald-400/70 relative overflow-hidden transition-colors';
+                penaltyBar.className = 'penalty-bar-safe h-full rounded-lg';
+                penaltyText.textContent = `منطقة الأمان! تخطيت العقاب (${todayPts}/100)`;
+            }
+
+            document.getElementById('exemptionCardsCount').textContent = window.appState.exemptionCards;
+            document.getElementById('doubleMultiplierBanner').className = window.appState.doublePointsActiveToday
+                ? 'inline-flex items-center gap-1.5 text-[11px] font-black px-2.5 py-1 rounded-lg bg-amber-950/90 border border-amber-400 text-amber-300 animate-pulse'
+                : 'hidden';
+
+            // مؤشرات التبويبات
+            document.getElementById('fortuneTabIndicator').className = window.appState.pendingFortuneChoice
+                ? 'w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping'
+                : (window.appState.fortuneSpunToday
+                    ? 'w-2.5 h-2.5 rounded-full bg-slate-600'
+                    : 'w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse');
+            document.getElementById('punishmentTabIndicator').className = window.appState.activePunishmentText
+                ? 'w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping'
+                : 'w-2.5 h-2.5 rounded-full bg-purple-400';
+
+            renderQuests();
+            renderWheelsUI();
+            renderPunishmentList();
+        };
+
+        function renderQuests() {
+            const repBox = document.getElementById('repeatableTasksContainer');
+            const oneBox = document.getElementById('onetimeTasksContainer');
+            const repParts = [];
+            const oneParts = [];
+
+            let rCount = 0, oTotal = 0, oDone = 0;
+
+            const iconEdit = `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>`;
+            const iconDelete = `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
+            const iconTasbeeh = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="2"/><path d="M12 1v2M12 21v2M1 12h2M21 12h2"/></svg>`;
+
+            window.appState.tasks.forEach(t => {
+                const isDouble = window.appState.doublePointsActiveToday;
+                const effPts = isDouble ? t.points * 2 : t.points;
+                const safeId = escapeHTML(t.id);
+                const safeTitle = escapeHTML(t.title);
+                const isConfirmingDelete = pendingDeleteTaskId === t.id;
+
+                const deleteBtnHtml = isConfirmingDelete
+                    ? `<button type="button" data-action="delete-task" data-id="${safeId}" class="px-2 py-1 rounded-lg btn-hud-crimson text-white text-[11px] font-black transition" title="اضغط للتأكيد">تأكيد؟</button>`
+                    : `<button type="button" data-action="delete-task" data-id="${safeId}" class="p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-rose-400 hover:border-rose-400 transition" title="حذف">${iconDelete}</button>`;
+
+                if (t.type === 'repeatable') {
+                    rCount++;
+                    if (t.kind === 'tasbeeh') {
+                        const progress = Math.min(t.targetCount, t.tasbeehProgress || 0);
+                        const pct = Math.round((progress / t.targetCount) * 100);
+                        repParts.push(`
+                        <div class="bg-slate-950 border border-emerald-500/30 rounded-xl p-3.5 flex flex-col gap-2">
+                            <div class="flex justify-between items-start gap-2">
+                                <h4 class="text-sm font-black text-white quest-full-text flex-1">${safeTitle}</h4>
+                                <div class="flex gap-1 shrink-0 items-center">
+                                    <button type="button" data-action="open-tasbeeh" data-id="${safeId}" class="p-1.5 rounded-lg bg-cyan-950/70 border border-cyan-500/50 text-cyan-200" title="فتح المسبحة الإلكترونية" aria-label="فتح المسبحة الإلكترونية">${iconTasbeeh}</button>
+                                    <button type="button" data-action="edit-task" data-id="${safeId}" class="p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-400 hover:text-cyan-400 hover:border-cyan-400 transition" title="تعديل">${iconEdit}</button>
+                                    ${deleteBtnHtml}
+                                </div>
+                            </div>
+                            <div class="flex justify-between text-[11px] font-bold">
+                                <span class="text-emerald-300">${progress} / ${t.targetCount} تكرار ${t.todayCount > 0 ? `(أُنجزت ${t.todayCount})` : ''}</span>
+                                <span class="text-cyan-300">+${effPts} نقطة ${isDouble ? '(X2)' : ''} عند الاكتمال</span>
+                            </div>
+                            <div class="h-2 rounded-full bg-slate-800 overflow-hidden"><div class="h-full bg-emerald-400 rounded-full transition-all" style="width:${pct}%"></div></div>
+                            <div class="flex gap-2">
+                                <button type="button" data-action="tasbeeh-step" data-id="${safeId}" data-step="-1" ${progress <= 0 ? 'disabled' : ''} class="px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white disabled:opacity-30">−</button>
+                                <button type="button" data-action="tasbeeh-step" data-id="${safeId}" data-step="1" class="flex-1 py-2 rounded-xl btn-hud-emerald text-white text-xs font-black">+ تسجيل تسبيحة</button>
+                                <button type="button" data-action="tasbeeh-step" data-id="${safeId}" data-step="10" class="px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-cyan-200 text-xs">+10</button>
+                            </div>
+                        </div>`);
+                    } else {
+                        repParts.push(`
+                        <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5 flex flex-col gap-2 relative group">
+                            <div class="flex justify-between items-start gap-2">
+                                <h4 class="text-sm font-black text-white quest-full-text flex-1">${safeTitle}</h4>
+                                <div class="flex gap-1 shrink-0 items-center opacity-90">
+                                    <button type="button" data-action="edit-task" data-id="${safeId}" class="p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-400 hover:text-cyan-400 hover:border-cyan-400 transition" title="تعديل">${iconEdit}</button>
+                                    ${deleteBtnHtml}
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-end mt-1">
+                                <div class="text-[11px] font-bold"><span class="text-cyan-400">+${effPts} نقطة ${isDouble ? '(X2)' : ''}</span> <span class="text-slate-500 mx-1">|</span> <span class="text-slate-400">مرات الإنجاز: ${t.todayCount}</span></div>
+                                <button type="button" data-action="complete-task" data-id="${safeId}" class="px-4 py-2 rounded-xl btn-hud-cyan text-white text-xs font-black shrink-0">إنجاز</button>
+                            </div>
+                        </div>`);
+                    }
+                } else {
+                    oTotal++;
+                    if (t.completedToday) oDone++;
+                    const doneCls = t.completedToday ? 'bg-emerald-950/20 border-emerald-500/30' : 'bg-slate-950 border-slate-800';
+                    const textCls = t.completedToday ? 'text-emerald-300' : 'text-white';
+                    const btnCls = t.completedToday ? 'bg-slate-800 border-slate-700 text-slate-500 cursor-not-allowed' : 'btn-hud-purple text-white';
+
+                    if (t.kind === 'tasbeeh') {
+                        const progress = Math.min(t.targetCount, t.tasbeehProgress || 0);
+                        const pct = Math.round((progress / t.targetCount) * 100);
+                        oneParts.push(`
+                        <div class="${doneCls} border rounded-xl p-3.5 flex flex-col gap-2 relative group">
+                            <div class="flex justify-between items-start gap-2">
+                                <h4 class="text-sm font-black ${textCls} quest-full-text flex-1">${safeTitle}</h4>
+                                <div class="flex gap-1 shrink-0 items-center">
+                                    <button type="button" data-action="open-tasbeeh" data-id="${safeId}" class="p-1.5 rounded-lg bg-cyan-950/70 border border-cyan-500/50 text-cyan-200" title="فتح المسبحة الإلكترونية" aria-label="فتح المسبحة الإلكترونية">${iconTasbeeh}</button>
+                                    <button type="button" data-action="edit-task" data-id="${safeId}" class="p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-400 hover:text-purple-400 hover:border-purple-400 transition" title="تعديل">${iconEdit}</button>
+                                    ${deleteBtnHtml}
+                                </div>
+                            </div>
+                            <div class="flex justify-between text-[11px] font-bold"><span class="text-purple-300">${progress} / ${t.targetCount} تكرار</span><span class="text-cyan-300">+${effPts} نقطة ${isDouble ? '(X2)' : ''} عند الاكتمال</span></div>
+                            <div class="h-2 rounded-full bg-slate-800 overflow-hidden"><div class="h-full bg-purple-400 rounded-full transition-all" style="width:${pct}%"></div></div>
+                            <div class="flex gap-2">
+                                <button type="button" data-action="tasbeeh-step" data-id="${safeId}" data-step="-1" ${progress <= 0 || t.completedToday ? 'disabled' : ''} class="px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white disabled:opacity-30">−</button>
+                                <button type="button" data-action="tasbeeh-step" data-id="${safeId}" data-step="1" ${t.completedToday ? 'disabled' : ''} class="flex-1 py-2 rounded-xl ${btnCls} text-xs font-black disabled:opacity-40">${t.completedToday ? 'مكتملة اليوم' : '+ تسجيل تسبيحة'}</button>
+                                <button type="button" data-action="tasbeeh-step" data-id="${safeId}" data-step="10" ${t.completedToday ? 'disabled' : ''} class="px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-cyan-200 text-xs disabled:opacity-30">+10</button>
+                            </div>
+                        </div>`);
+                    } else {
+                        oneParts.push(`
+                        <div class="${doneCls} border rounded-xl p-3.5 flex flex-col gap-2 relative group">
+                            <div class="flex justify-between items-start gap-2">
+                                <h4 class="text-sm font-black ${textCls} quest-full-text flex-1">${safeTitle}</h4>
+                                <div class="flex gap-1 shrink-0 items-center opacity-90">
+                                    <button type="button" data-action="edit-task" data-id="${safeId}" class="p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-400 hover:text-purple-400 hover:border-purple-400 transition" title="تعديل">${iconEdit}</button>
+                                    ${deleteBtnHtml}
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-end mt-1">
+                                <div class="text-[11px] font-bold"><span class="${t.completedToday ? 'text-emerald-500' : 'text-purple-400'}">+${effPts} نقطة ${isDouble ? '(X2)' : ''}</span></div>
+                                <button type="button" data-action="complete-task" data-id="${safeId}" ${t.completedToday ? 'disabled' : ''} class="px-4 py-2 rounded-xl ${btnCls} text-xs font-black shrink-0">${t.completedToday ? 'مكتملة اليوم' : 'إنجاز'}</button>
+                            </div>
+                        </div>`);
+                    }
+                }
+            });
+
+            repBox.innerHTML = repParts.length ? repParts.join('') : '<p class="text-xs text-slate-500 text-center py-4">لا توجد مهام متكررة بعد</p>';
+            oneBox.innerHTML = oneParts.length ? oneParts.join('') : '<p class="text-xs text-slate-500 text-center py-4">لا توجد مهام مرة واحدة بعد</p>';
+            document.getElementById('repeatableTasksCountBadge').textContent = `${rCount} مهام`;
+            document.getElementById('onetimeTasksCountBadge').textContent = `${oDone}/${oTotal} مكتملة`;
+        }
+
+        function renderWheelsUI() {
+            const claimBtn = document.getElementById('claimPendingFortuneChoiceBtn');
+            if (window.appState.fortuneSpunToday) {
+                document.getElementById('fortuneStatusBadge').textContent = 'مغلقة (0/1)';
+                document.getElementById('spinFortuneBtn').disabled = true;
+                document.getElementById('fortuneResultTodayBox').classList.remove('hidden');
+                document.getElementById('fortuneResultTodayText').textContent = window.appState.fortuneTodayResult;
+                if (claimBtn) claimBtn.classList.toggle('hidden', !window.appState.pendingFortuneChoice);
+            } else {
+                document.getElementById('fortuneStatusBadge').textContent = 'متاحة (1/1)';
+                document.getElementById('spinFortuneBtn').disabled = wheelSpinning.fortune;
+                document.getElementById('fortuneResultTodayBox').classList.add('hidden');
+                if (claimBtn) claimBtn.classList.add('hidden');
+            }
+
+            if (window.appState.punishmentSpunToday) {
+                document.getElementById('punishmentStatusBadge').textContent = 'مغلقة (0/1)';
+                document.getElementById('spinPunishmentBtn').disabled = true;
+                document.getElementById('punishmentResultTodayBox').classList.remove('hidden');
+                document.getElementById('punishmentResultTodayText').textContent = window.appState.punishmentTodayResult;
+                if (window.appState.activePunishmentText) {
+                    document.getElementById('completePunishmentInlineBtn').classList.remove('hidden');
+                    document.getElementById('useShieldInlineBtn').className = window.appState.exemptionCards > 0
+                        ? 'px-3.5 py-2 rounded-lg btn-hud-purple text-white font-black text-xs'
+                        : 'hidden';
+                } else {
+                    document.getElementById('completePunishmentInlineBtn').classList.add('hidden');
+                    document.getElementById('useShieldInlineBtn').classList.add('hidden');
+                }
+            } else {
+                document.getElementById('punishmentStatusBadge').textContent = 'متاحة (1/1)';
+                document.getElementById('spinPunishmentBtn').disabled = wheelSpinning.punishment;
+                document.getElementById('punishmentResultTodayBox').classList.add('hidden');
+            }
+        }
+
+        function renderPunishmentList() {
+            const list = document.getElementById('punishmentEditorList');
+            if (!list) return;
+            const canDelete = window.appState.punishmentItems.length > 2;
+            list.innerHTML = window.appState.punishmentItems.map((item, i) => `
+                <div class="bg-slate-950 p-2 rounded-lg flex items-center gap-2">
+                    <input
+                        type="text"
+                        data-action="edit-punishment"
+                        data-index="${i}"
+                        class="flex-1 bg-transparent text-sm text-white outline-none"
+                        maxlength="100"
+                        value="${escapeHTML(item.label)}"
+                    >
+                    <button
+                        type="button"
+                        data-action="delete-punishment"
+                        data-index="${i}"
+                        ${canDelete ? '' : 'disabled'}
+                        class="text-xs font-bold shrink-0 ${canDelete ? 'text-rose-400 hover:text-rose-300' : 'text-slate-600 cursor-not-allowed'}"
+                        title="${canDelete ? 'حذف' : 'لا يمكن أن تحتوي العجلة على أقل من عقابين'}"
+                    >حذف</button>
+                </div>
+            `).join('');
+        }
+
+        function bindDelegatedEvents() {
+            // تفويض أحداث قوائم المهام
+            const handleTaskContainerClick = (e) => {
+                const btn = e.target.closest('button[data-action]');
+                if (!btn || btn.disabled) return;
+                const action = btn.dataset.action;
+                const id = btn.dataset.id;
+                if (!id) return;
+
+                if (action === 'complete-task') completeTask(id);
+                else if (action === 'edit-task') openQuestModal(id);
+                else if (action === 'delete-task') requestDeleteTask(id);
+                else if (action === 'open-tasbeeh') openTasbeehModal(id);
+                else if (action === 'tasbeeh-step') incrementTasbeeh(id, Number(btn.dataset.step) || 1);
+            };
+            document.getElementById('repeatableTasksContainer')?.addEventListener('click', handleTaskContainerClick);
+            document.getElementById('onetimeTasksContainer')?.addEventListener('click', handleTaskContainerClick);
+
+            // تفويض أحداث محرر عجلة العقابات
+            const punishList = document.getElementById('punishmentEditorList');
+            punishList?.addEventListener('click', (e) => {
+                const btn = e.target.closest('button[data-action="delete-punishment"]');
+                if (!btn) return;
+                const idx = Number(btn.dataset.index);
+                if (Number.isInteger(idx)) deletePunishmentSlice(idx);
+            });
+            punishList?.addEventListener('change', (e) => {
+                const input = e.target.closest('input[data-action="edit-punishment"]');
+                if (!input) return;
+                const idx = Number(input.dataset.index);
+                if (Number.isInteger(idx)) updatePunishmentSlice(idx, input.value);
+            });
+
+            // تفويض أحداث اختيار الشخصية (Avatar)
+            document.getElementById('avatarPickerGrid')?.addEventListener('click', (e) => {
+                const btn = e.target.closest('button[data-action="select-avatar"]');
+                if (!btn) return;
+                const key = btn.dataset.avatar;
+                if (key && AVATAR_SVGS[key]) {
+                    selectedModalAvatar = key;
+                    renderAvatarPicker();
+                }
+            });
+
+            // تفويض أحداث سجل التقدم والنقاط
+            document.getElementById('progressHistoryContent')?.addEventListener('click', (e) => {
+                const btn = e.target.closest('button[data-action]');
+                if (!btn) return;
+                const action = btn.dataset.action;
+                if (action === 'filter-progress') {
+                    progressFilter = btn.dataset.filter || 'all';
+                    progressVisibleLimit = HISTORY_PAGE_SIZE;
+                    renderProgressHistory();
+                } else if (action === 'toggle-expand-progress') {
+                    progressExpandAll = !progressExpandAll;
+                    renderProgressHistory();
+                } else if (action === 'load-more-progress') {
+                    progressVisibleLimit += HISTORY_PAGE_SIZE;
+                    renderProgressHistory();
+                }
+            });
+        }
+
+        window.showToast = function(msg) {
+            const t = document.getElementById('systemToast');
+            document.getElementById('systemToastText').textContent = String(msg ?? '');
+            t.classList.remove('opacity-0', 'translate-y-4');
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => t.classList.add('opacity-0', 'translate-y-4'), 3000);
+        };
+
+        /* ==========================================================================
+           11. خلفية الجزيئات (تتوقف تلقائياً عند إخفاء التبويب لتوفير البطارية والمعالج)
+           ========================================================================== */
+        let particlesRafId = null;
+        let particlesRunning = false;
+
         function initParticles() {
             const canvas = document.getElementById('bgParticlesCanvas');
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+
             let w = canvas.width = window.innerWidth;
             let h = canvas.height = window.innerHeight;
-            window.addEventListener('resize', () => { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; });
+            window.addEventListener('resize', () => {
+                w = canvas.width = window.innerWidth;
+                h = canvas.height = window.innerHeight;
+            });
+
             const particles = Array.from({ length: 28 }, () => ({
                 x: Math.random() * w,
                 y: Math.random() * h,
@@ -1490,31 +2762,131 @@
                 vy: -(Math.random() * 0.35 + 0.1),
                 alpha: Math.random() * 0.45 + 0.15
             }));
+
             function draw() {
+                if (document.hidden) {
+                    particlesRunning = false;
+                    particlesRafId = null;
+                    return;
+                }
                 ctx.clearRect(0, 0, w, h);
-                particles.forEach(p => {
+                for (let i = 0; i < particles.length; i++) {
+                    const p = particles[i];
                     p.y += p.vy;
-                    if (p.y < 0) { p.y = h; p.x = Math.random() * w; }
+                    if (p.y < 0) {
+                        p.y = h;
+                        p.x = Math.random() * w;
+                    }
                     ctx.beginPath();
                     ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
                     ctx.fillStyle = `rgba(0, 240, 255, ${p.alpha})`;
                     ctx.fill();
-                });
-                requestAnimationFrame(draw);
+                }
+                particlesRafId = requestAnimationFrame(draw);
             }
-            draw();
+
+            window.startParticlesLoop = function() {
+                if (!particlesRunning && !document.hidden) {
+                    particlesRunning = true;
+                    particlesRafId = requestAnimationFrame(draw);
+                }
+            };
+
+            window.stopParticlesLoop = function() {
+                if (particlesRafId !== null) {
+                    cancelAnimationFrame(particlesRafId);
+                    particlesRafId = null;
+                }
+                particlesRunning = false;
+            };
+
+            window.startParticlesLoop();
         }
+
+        /* ==========================================================================
+           12. اختصارات لوحة المفاتيح، النقر خارج النوافذ، والتهيئة النهائية
+           ========================================================================== */
+        function bindModalBackdropDismissal() {
+            const dismissibleModals = [
+                { id: 'rulesModal', close: closeRulesModal },
+                { id: 'progressModal', close: closeProgressModal },
+                { id: 'questModal', close: closeQuestModal },
+                { id: 'tasbeehModal', close: closeTasbeehModal },
+                { id: 'profileModal', close: closeProfileModal },
+                { id: 'levelUpModal', close: closeLevelUpModal },
+                { id: 'wheelResultModal', close: () => closeWheelResultModal(false) }
+            ];
+
+            dismissibleModals.forEach(({ id, close }) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.addEventListener('click', (e) => {
+                    if (e.target === el) close();
+                });
+            });
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                // يمنع إغلاق شاشة العقاب الإجباري بزر Escape
+                if (window.appState.needsForcedPenalty) return;
+                closeRulesModal();
+                closeProgressModal();
+                closeQuestModal();
+                closeTasbeehModal();
+                closeProfileModal();
+                closeLevelUpModal();
+                closeWheelResultModal(false);
+            }
+        });
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                if (typeof window.stopParticlesLoop === 'function') window.stopParticlesLoop();
+            } else {
+                checkDayRollover();
+                updateMidnightCountdown();
+                if (typeof window.startParticlesLoop === 'function') window.startParticlesLoop();
+            }
+        });
+
+        window.addEventListener('focus', () => {
+            checkDayRollover();
+            updateMidnightCountdown();
+        });
 
         window.onload = function() {
             loadState();
+            bindDelegatedEvents();
+            bindModalBackdropDismissal();
             renderAll();
             drawWheelCanvas('fortune');
             drawWheelCanvas('punishment');
             initParticles();
             updateMidnightCountdown();
             setInterval(updateMidnightCountdown, 1000);
-            if(!window.appState.playerName) setTimeout(openProfileModal, 500);
-            if(window.appState.needsForcedPenalty) setTimeout(playPenaltyAlarm, 600);
+
+            document.getElementById('newPunishmentInput')?.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addPunishmentSlice();
+                }
+            });
+
+            document.getElementById('modalPlayerNameInput')?.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    saveProfileModal();
+                }
+            });
+
+            if (window.appState.needsForcedPenalty) {
+                setTimeout(playPenaltyAlarm, 600);
+            } else if (window.appState.pendingFortuneChoice) {
+                setTimeout(openPendingFortuneChoiceModal, 300);
+            } else if (!window.appState.playerName) {
+                setTimeout(openProfileModal, 500);
+            }
         };
     </script>
 </body>
